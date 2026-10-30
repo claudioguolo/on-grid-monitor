@@ -12,6 +12,7 @@ return array(
     'App\\Controllers\\Energy' => $baseDir . '/app/Controllers/Energy.php',
     'App\\Controllers\\Home' => $baseDir . '/app/Controllers/Home.php',
     'App\\Filters\\InitializeDatabase' => $baseDir . '/app/Filters/InitializeDatabase.php',
+    'App\\Libraries\\BridgeEnvelope' => $baseDir . '/app/Libraries/BridgeEnvelope.php',
     'App\\Libraries\\History' => $baseDir . '/app/Libraries/History.php',
     'App\\Libraries\\Measurements' => $baseDir . '/app/Libraries/Measurements.php',
     'App\\Libraries\\Parameters' => $baseDir . '/app/Libraries/Parameters.php',

@@ -56,6 +56,7 @@ class ComposerStaticInit206d3bcd95e43324ff7cd4e22a988381
         'App\\Controllers\\Energy' => __DIR__ . '/../..' . '/app/Controllers/Energy.php',
         'App\\Controllers\\Home' => __DIR__ . '/../..' . '/app/Controllers/Home.php',
         'App\\Filters\\InitializeDatabase' => __DIR__ . '/../..' . '/app/Filters/InitializeDatabase.php',
+        'App\\Libraries\\BridgeEnvelope' => __DIR__ . '/../..' . '/app/Libraries/BridgeEnvelope.php',
         'App\\Libraries\\History' => __DIR__ . '/../..' . '/app/Libraries/History.php',
         'App\\Libraries\\Measurements' => __DIR__ . '/../..' . '/app/Libraries/Measurements.php',
         'App\\Libraries\\Parameters' => __DIR__ . '/../..' . '/app/Libraries/Parameters.php',
