@@ -15,6 +15,8 @@ body{font:16px system-ui;background:#0c1726;color:#e8eff9;max-width:1100px;margi
 @media(max-width:1100px){.energy-grid{grid-template-columns:1fr}}
 @media(max-width:900px){.sidebar{position:static;width:100%;padding:16px 20px;border-right:0;border-bottom:1px solid #263447}.sidebar small{margin-top:4px}.dashboard{width:100%;margin-left:0;padding:20px}}
 @media(max-width:600px){.phase-grid{grid-template-columns:1fr}.dashboard{padding:16px}.cards{gap:12px}.card{flex-basis:100%}.tabs button{flex:1;padding:12px 16px}}
+
+.energy-scroll{max-width:100%;overflow-x:auto}.energy-summary{width:100%;min-width:560px;border-collapse:collapse}.energy-summary th,.energy-summary td{text-align:right;padding:16px 12px;border-bottom:1px solid #29394f;font-variant-numeric:tabular-nums}.energy-summary th:first-child,.energy-summary td:first-child{text-align:left;width:34%;padding-left:0}.energy-summary td:not(:first-child){font-size:clamp(16px,1.6vw,23px);white-space:nowrap}.energy-summary .coverage{margin-top:5px;font-size:11px}.energy-summary th{font-weight:600}
 </style>
 <aside class="sidebar" aria-label="Identificação da aplicação"><span class="sidebar-brand">ENERGIA / LOCAL</span><small>Monitor bifásico<br>IE Tecnologia · SM-3W Lite</small></aside>
 <main class="dashboard">
@@ -36,7 +38,9 @@ body{font:16px system-ui;background:#0c1726;color:#e8eff9;max-width:1100px;margi
 <article class="phase b"><h2>Fase B</h2><div class="phase-values"><div><small>Tensão</small><strong id="voltage-b">—</strong><meter id="meter-b" min="0" max="260" value="0" aria-label="Tensão da fase B"></meter></div><div><small>Corrente</small><strong id="current-b">—</strong></div><div><small>Potência ativa</small><strong id="power-b">—</strong></div><div><small>Fator de potência</small><strong id="pf-b">—</strong></div></div></article>
 </div>
 <div class="cards"><div class="card">Saldo total A + B<div class="value" id="net">—</div></div><div class="card">Frequência<div class="value" id="frequency">—</div></div><div class="card">Circuito<div class="value">Bifásico</div><small>Fase C desconectada</small></div></div>
-<div class="energy-grid"><article><h2 class="consumed">Energia consumida da rede</h2><table class="energy-table" aria-label="Energia consumida"><tbody id="energy-consumption"></tbody></table></article><article class="energy-balance"><h2>Saldo de energia</h2><small>Injeção − consumo · positivo: injeção líquida; negativo: consumo líquido.</small><table class="energy-table" aria-label="Saldo de energia"><tbody id="energy-balance"></tbody></table></article><article><h2 class="injected">Energia injetada na rede</h2><table class="energy-table" aria-label="Energia injetada"><tbody id="energy-injection"></tbody></table></article></div>
+<article><h2>Geração/Consumo</h2>
+<p class="footer-note">Gerada: energia injetada na rede. Total = gerada − consumida; positivo indica excedente injetado.</p>
+<div class="energy-scroll" role="region" aria-label="Geração e consumo por período" tabindex="0"><table class="energy-summary"><thead><tr><th scope="col">Período</th><th scope="col" class="consumed">Consumida</th><th scope="col" class="injected">Gerada</th><th scope="col">Total</th></tr></thead><tbody id="energy-summary"></tbody></table></div></article>
 <p class="footer-note">Energia em kWh: soma das variações dos contadores das fases A e B, dentro de cada período. Totais parciais consideram apenas o histórico disponível. Calendário: <span id="timezone">—</span>, semana iniciando na segunda-feira. Injeção é o excedente enviado à rede, não a geração solar total.</p>
 <article>
 <label for="period">Período: </label><select id="period"><option value="1">Última hora</option><option value="6">Últimas 6 horas</option><option value="24" selected>Últimas 24 horas</option><option value="168">Últimos 7 dias</option></select>
@@ -78,18 +82,20 @@ function updateLive(payload,recent){
 }
 async function refreshEnergy(){try{
  const response=await fetch(API_PREFIX+'/api/summary');if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();
- for(const type of ['consumption','balance','injection']){const root=el('energy-'+type);root.replaceChildren();
+ const root=el('energy-summary');root.replaceChildren();
  for(const [key,label] of [['today','Hoje'],['week','Semana atual'],['month','Mês atual'],['previous_month','Mês anterior']]){
-  const item=data.energy[key],row=document.createElement('tr'),name=document.createElement('td'),value=document.createElement('td');name.textContent=label;
+  const item=data.energy[key],row=document.createElement('tr'),name=document.createElement('th');name.scope='row';name.style.fontWeight='400';name.textContent=label;
   const note=document.createElement('small');note.className='coverage';
   if(item.from&&item.to){const options={timeZone:settings.timezone,day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'};note.textContent=(item.partial?'Parcial · ':'')+new Date(item.from).toLocaleString('pt-BR',options)+' a '+new Date(item.to).toLocaleString('pt-BR',options)+(item.resets?' · reinício de contador detectado':'');}else note.textContent='Sem histórico neste período';
-  name.append(note);
+  name.append(note);row.append(name);
+  for(const type of ['consumption','injection','balance']){const value=document.createElement('td');
   const amount=type==='balance'?(item.consumption===null||item.injection===null?null:Math.round((item.injection-item.consumption)*1e6)/1e6):item[type];
   value.textContent=amount===null?'—':amount.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:3,signDisplay:type==='balance'?'exceptZero':'auto'})+' kWh';
   value.className=type==='balance'?(amount>0?'injected':amount<0?'consumed':''):type==='consumption'?'consumed':'injected';
-  row.append(name,value);root.append(row);
- }}
- }catch(e){for(const type of ['consumption','balance','injection'])el('energy-'+type).textContent='Não foi possível atualizar: '+e.message;}}
+  row.append(value);
+  }root.append(row);
+ }
+ }catch(e){const root=el('energy-summary');root.replaceChildren();const row=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=4;cell.textContent='Não foi possível atualizar: '+e.message;row.append(cell);root.append(row);}}
 
 const ns='http://www.w3.org/2000/svg';
 function svgNode(tag,attrs,text){const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,v);if(text!==undefined)n.textContent=text;return n;}
