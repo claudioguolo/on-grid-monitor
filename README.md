@@ -1,5 +1,7 @@
 # PY9MT Energia
 
+**Hostinger com Git restrito a public_html:** siga [docs/HOSTINGER.md](docs/HOSTINGER.md). Esse procedimento substitui os caminhos antigos de publicacao descritos abaixo. A branch `hostinger` agora instala tudo em `public_html/energia`, com arquivos internos bloqueados em `private/`.
+
 Sistema de coleta de dados de consumo e geração de energia. Monitoramento de consumo e injeção com PHP / CodeIgniter / MySQL.
 
 Repositório: https://github.com/claudioguolo/on-grid-monitor
@@ -98,12 +100,6 @@ Cada commit recebe `MAJOR.MINOR.N`, onde `N` é a quantidade de commits no hist�
 
 Ao enviar alterações para `main`, o workflow valida o projeto, gera o pacote com dependências de produção e atualiza a branch **hostinger** sem force push. A branch contém artefatos prontos, `VERSION` e `BUILD.json` com o commit de origem. Configure a integração do hPanel para seguir **hostinger**, nunca `main` (que não contém vendor). Não edite essa branch manualmente. A publicação só ocorre após os testes passarem; falhas ficam registradas em Actions. Permita escrita de Contents ao GitHub Actions e a criação da branch/tag conforme as regras do repositório.
 
-Configuração para `https://www.py9mt.qsl.br/energia/`:
-
-1. Publique o repositório privado no GitHub. No hPanel → site → Avançado → Git, conecte o GitHub por OAuth e selecione o repositório.
-2. Aguarde o primeiro workflow criar a branch `hostinger` e selecione-a no hPanel. Use como destino **uma pasta privada dedicada `energia_app`**, fora de `public_html`; confirme o caminho oferecido pela conta. Não use a raiz do site existente como destino da integração.
-3. Crie uma pasta irmã **energia_runtime** (mesmo nível de energia_app). Coloque nela o `.env` de produção e `writable/cache`, `writable/logs`, `writable/session` e `writable/uploads`, graváveis pelo PHP. O projeto detecta esse `.env` e mantém credenciais e runtime fora dos arquivos substituídos pelo Git.
-4. Na pasta pública `public_html/energia`, instale uma vez o conteúdo de `energia_app/public`, incluindo `.htaccess`. No `index.php` público, a linha que carrega Paths deve ser `require FCPATH . '../../energia_app/app/Config/Paths.php';`. Defina `app.baseURL = 'https://www.py9mt.qsl.br/energia/'` em energia_runtime/.env. Os próximos ajustes em views/controllers chegam pela pasta privada. Alterações futuras em `public/` precisam ser copiadas também para essa entrada pública; a integração Git única não atualiza duas pastas separadas.
-5. Habilite Auto-deployment no hPanel. Primeiro faça backup dos arquivos existentes e do banco. A conexão OAuth e as configurações de destino dependem do acesso à conta Hostinger.
+Configuração para `https://www.py9mt.qsl.br/energia/`: publique a branch `hostinger` em `public_html/energia` e mantenha `.env` e writable em `energia_runtime`, no mesmo nível de public_html. A entrada index.php e os bloqueios HTTP já são gerados pelo pipeline. Siga [docs/HOSTINGER.md](docs/HOSTINGER.md) para configurar e validar a instalação.
 
 O pacote manual continua disponível em `dist/`. Ele pode ser instalado sem GitHub. Nenhuma senha deve ser adicionada ao repositório nem à branch de produção. A integração remota ainda precisa ser conectada nas contas; os workflows locais, isoladamente, não publicam o projeto.

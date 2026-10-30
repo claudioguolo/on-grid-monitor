@@ -4,6 +4,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 from zipfile import ZipFile
+from hostinger_layout import install
 
 root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser()
@@ -33,8 +34,7 @@ with ZipFile(package) as archive:
             temporary_branch = 'hostinger-build-' + __import__('uuid').uuid4().hex[:10]
             git('switch', '--orphan', temporary_branch, cwd=work)
         try:
-            archive.extractall(work)
-            (work / 'BUILD.json').write_text(__import__('json').dumps({'version':version,'commit':source},indent=2)+'\n')
+            install(archive, work, source)
             git('add', '--force', '--all', cwd=work)
             changed = subprocess.run(['git','diff','--cached','--quiet'],cwd=work).returncode != 0
             if changed:

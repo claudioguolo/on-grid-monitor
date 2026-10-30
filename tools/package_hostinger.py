@@ -17,3 +17,17 @@ with ZipFile(target, 'w', ZIP_DEFLATED) as archive:
         archive.writestr('writable/' + name + '/.gitkeep', '')
     archive.writestr('writable/.htaccess', 'Require all denied\n')
 print(target)
+
+# Ready-to-upload layout for Hostinger's Git public_html restriction.
+import tempfile
+import subprocess
+from hostinger_layout import install
+public_target = root / 'dist/py9mt-energia-public_html.zip'
+commit = subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
+with tempfile.TemporaryDirectory() as temp:
+    with ZipFile(target) as original:
+        install(original,temp,commit)
+    with ZipFile(public_target,'w',ZIP_DEFLATED) as output:
+        for file in Path(temp).rglob('*'):
+            if file.is_file(): output.write(file,file.relative_to(temp))
+print(public_target)

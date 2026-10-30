@@ -19,5 +19,5 @@ with tempfile.TemporaryDirectory(prefix='energia-publish-') as tmp:
     publish(other)
     assert git('rev-list','--count','hostinger')=='2'
     files=git('ls-tree','-r','--name-only','hostinger').splitlines()
-    assert '.env' not in files and 'BUILD.json' in files and any(n.startswith('vendor/') for n in files)
+    assert not any(n == '.env' or n.endswith('/.env') for n in files) and 'private/BUILD.json' in files and any(n.startswith('private/vendor/') for n in files) and 'index.php' in files and 'private/.htaccess' in files
     print('Publicacao: criacao, repeticao idempotente e atualizacao sem force push: OK')

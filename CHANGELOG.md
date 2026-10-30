@@ -2,6 +2,8 @@
 
 ## Alteracoes posteriores a 1.0.0-php
 
+- Branch Hostinger instala entrada publica e pasta private bloqueada, compativel com destino public_html/energia; runtime permanece fora da pasta publica.
+
 - Nome oficial PY9MT Energia aplicado ao painel e documentacao; repositorio on-grid-monitor.
 
 - Versao automatica por commit, identificacao discreta no painel e pipeline GitHub para branch Hostinger com dependencias prontas.
