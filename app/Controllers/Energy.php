@@ -61,6 +61,39 @@ class Energy extends BaseController
             'parsed'=>json_encode($parsed,JSON_THROW_ON_ERROR|JSON_INVALID_UTF8_SUBSTITUTE)]);
         return $this->json(['ok'=>true,'id'=>(int)$db->insertID()]);
     }
+    public function receiveArchive()
+    {
+        $token=(string)env('METER_TOKEN',env('meter.token',''));
+        if($token==='')return $this->response->setStatusCode(503)->setJSON(['error'=>'Configure meter.token']);
+        if(!hash_equals($token,$this->request->getHeaderLine('X-Meter-Token')))return $this->response->setStatusCode(401)->setJSON(['error'=>'Token invalido']);
+        $body=(string)$this->request->getBody();
+        if(strlen($body)>1048576)return $this->response->setStatusCode(413)->setJSON(['error'=>'Lote muito grande']);
+        try{
+            $input=json_decode($body,true,512,JSON_THROW_ON_ERROR);
+            if(!is_array($input)||!is_string($input['dataset']??null)||!is_array($input['records']??null)||!array_is_list($input['records'])||count($input['records'])<1||count($input['records'])>100)throw new \InvalidArgumentException();
+            $rows=[];
+            foreach($input['records'] as $record){if(!is_array($record))throw new \InvalidArgumentException();$rows[]=\App\Libraries\ArchivedReading::row($record,$input['dataset']);}
+        }catch(\JsonException|\InvalidArgumentException $e){return $this->response->setStatusCode(400)->setJSON(['error'=>'Lote invalido']);}
+        $db=db_connect();$inserted=0;$duplicates=0;$ack=[];
+        $db->transException(true)->transBegin();
+        try{
+            foreach($rows as $i=>$row){
+                $existing=$db->table('readings')->where('import_key',$row['import_key'])->get()->getRowArray();
+                $digest=\App\Libraries\ArchivedReading::digest($row);
+                if($existing){
+                    if(!hash_equals($digest,\App\Libraries\ArchivedReading::digest($existing)))throw new \DomainException('Conflito de historico');
+                    $duplicates++;
+                }else{
+                    if(!$db->table('readings')->insert($row))throw new \RuntimeException('Falha ao salvar historico');
+                    $inserted++;
+                }
+                $ack[]=['source_id'=>$input['records'][$i]['source_id'],'digest'=>$digest];
+            }
+            if(!$db->transStatus())throw new \RuntimeException('Falha na transacao');
+            $db->transCommit();
+        }catch(\Throwable $e){$db->transRollback();if($e instanceof \DomainException)return $this->response->setStatusCode(409)->setJSON(['error'=>'Registro existente com conteudo diferente']);throw $e;}
+        return $this->json(['ok'=>true,'inserted'=>$inserted,'duplicates'=>$duplicates,'records'=>$ack]);
+    }
     public function receiveBridge()
     {
         $token=(string)env('METER_TOKEN',env('meter.token',''));

@@ -57,3 +57,19 @@ $event['received_at']='invalid';
 check(request('/api/energia/bridge','POST',json_encode($event),$headers)[0]===400,'Ponte: horario invalido');
 check(request('/api/energia/bridge','POST','{}',['Content-Type: application/json'])[0]===401,'Ponte: exige token');
 echo "Ponte HTTPS: autenticacao, horario original, idempotencia e conflitos: OK\n";
+$archived=['source_id'=>'42','received_at'=>'2026-10-27T18:15:34+00:00','source'=>'history:1','method'=>'IMPORT','content_type'=>'text/plain','query'=>'',
+    'body_base64'=>base64_encode('14:15:34:-30363:-62804:-1'),
+    'parsed'=>'{"query":{},"payload":{"id":"1","pa":"-303.63","pb":"-628.04"},"history":{"scale":100}}'];
+$batch=['dataset'=>'test-pc-mysql','records'=>[$archived]];
+[$status,$text]=request('/api/energia/archive','POST',json_encode($batch),$headers);$ack=json_decode($text,true);
+check($status===200&&$ack['inserted']===1&&$ack['records'][0]['source_id']==='42','Historico: importar registro');
+$repeat=json_decode(request('/api/energia/archive','POST',json_encode($batch),$headers)[1],true);
+check($repeat['inserted']===0&&$repeat['duplicates']===1&&$repeat['records']===$ack['records'],'Historico: reimportacao sem duplicar');
+$batch['records'][0]['body_base64']=base64_encode('alterado');
+check(request('/api/energia/archive','POST',json_encode($batch),$headers)[0]===409,'Historico: conflito nao sobrescreve');
+check(request('/api/energia/archive','POST','{}',['Content-Type: application/json'])[0]===401,'Historico: exige token');
+$latest=json_decode(request('/api/readings','GET','',[$auth])[1],true);
+$history=array_values(array_filter($latest['readings'],fn($r)=>$r['source']==='history:1'&&$r['received_at']===$archived['received_at']))[0];
+check($history['body']===base64_decode($archived['body_base64']),'Historico: bytes originais preservados');
+check($history['parsed']['payload']['pa']==='-303.63','Historico: nao divide valores novamente');
+echo "Historico em lotes: importacao, integridade, duplicatas, conflito e autenticacao: OK\n";

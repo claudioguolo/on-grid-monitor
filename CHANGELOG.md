@@ -2,6 +2,9 @@
 
 ## Alteracoes posteriores a 1.0.0-php
 
+- Exportacao consistente do MySQL local e importacao HTTPS em lotes, preservando dados brutos, horarios e verificacao SHA-256 por registro.
+- Reimportacoes idempotentes e conflitos rejeitados sem substituir medicoes existentes.
+
 - Ponte HTTP/HTTPS para Orange Pi, com fila SQLite persistente, reenvio e status local.
 - Receptor HTTPS idempotente com preservacao de horario e dados originais.
 
