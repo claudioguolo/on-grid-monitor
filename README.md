@@ -1,6 +1,6 @@
 # PY9MT Energia
 
-Monitoramento de consumo e injeção de energia. Projeto PHP / CodeIgniter / MySQL.
+Sistema de coleta de dados de consumo e geração de energia. Monitoramento de consumo e injeção com PHP / CodeIgniter / MySQL.
 
 Repositório: https://github.com/claudioguolo/on-grid-monitor
 
