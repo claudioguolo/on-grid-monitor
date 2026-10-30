@@ -2,6 +2,8 @@
 
 ## Alteracoes posteriores a 1.0.0-php
 
+- Quadro central de saldo de energia (consumo menos injecao) por dia, semana e mes, com indicacao de cobertura parcial.
+
 - PHP assume a porta 8080 e recebe os envios reais do medidor.
 - Transferencia final do SQLite para MySQL com verificacao integral; coletor Python baixado e volume preservado.
 
