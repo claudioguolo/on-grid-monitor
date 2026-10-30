@@ -2,6 +2,9 @@
 
 ## Alteracoes posteriores a 1.0.0-php
 
+- Ponte HTTP/HTTPS para Orange Pi, com fila SQLite persistente, reenvio e status local.
+- Receptor HTTPS idempotente com preservacao de horario e dados originais.
+
 - Pipeline aguarda o Apache e o health antes de validar, evitando falhas intermitentes durante a inicializacao do conteiner.
 
 - Branch Hostinger instala entrada publica e pasta private bloqueada, compativel com destino public_html/energia; runtime permanece fora da pasta publica.

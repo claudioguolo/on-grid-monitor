@@ -38,3 +38,22 @@ check($status===200&&str_contains($result,'1 registros importados'),'Upload TXT 
 [$status,$text]=request('/api/readings','GET','',[$auth]);$d=json_decode($text,true);check($d['total']===5,'Historico acrescentado');
 check($d['readings'][0]['method']!=='IMPORT','Historico nao deve substituir ultima telemetria');
 echo "HTTP: autenticacao, token, POST/GET, dados brutos, graficos, periodos, resumo e upload CSRF: OK\n";
+$event=['protocol'=>1,'bridge_id'=>'test-orange','event_id'=>'test-event-1','received_at'=>'2026-10-28T16:00:00.123456+00:00',
+    'source'=>'192.168.0.10','method'=>'POST','content_type'=>'application/json','query'=>'',
+    'body_base64'=>base64_encode('{"id":"1","pa":"100","pb":"-300"}')];
+$headers=['Content-Type: application/json','X-Meter-Token: test-only-token'];
+[$status,$text]=request('/api/energia/bridge','POST',json_encode($event),$headers);$first=json_decode($text,true);
+check($status===200&&$first['ok']&&$first['event_id']===$event['event_id']&&!$first['duplicate'],'Ponte: primeiro envio');
+[$status,$text]=request('/api/energia/bridge','POST',json_encode($event),$headers);$second=json_decode($text,true);
+check($status===200&&$second['duplicate']&&$second['id']===$first['id'],'Ponte: reenvio idempotente');
+[$status,$text]=request('/api/readings','GET','',[$auth]);$rows=json_decode($text,true)['readings'];
+check(count($rows)===6,'Ponte: apenas um novo registro');
+$stored=array_values(array_filter($rows,fn($row)=>$row['id']===$first['id']))[0];
+check($stored['received_at']===$event['received_at'],'Ponte: horario original');
+check($stored['body']===base64_decode($event['body_base64']),'Ponte: corpo original');
+$event['body_base64']=base64_encode('{"id":"alterado"}');
+check(request('/api/energia/bridge','POST',json_encode($event),$headers)[0]===409,'Ponte: conflito de identidade');
+$event['received_at']='invalid';
+check(request('/api/energia/bridge','POST',json_encode($event),$headers)[0]===400,'Ponte: horario invalido');
+check(request('/api/energia/bridge','POST','{}',['Content-Type: application/json'])[0]===401,'Ponte: exige token');
+echo "Ponte HTTPS: autenticacao, horario original, idempotencia e conflitos: OK\n";

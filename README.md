@@ -103,3 +103,7 @@ Ao enviar alterações para `main`, o workflow valida o projeto, gera o pacote c
 Configuração para `https://www.py9mt.qsl.br/energia/`: publique a branch `hostinger` em `public_html/energia` e mantenha `.env` e writable em `energia_runtime`, no mesmo nível de public_html. A entrada index.php e os bloqueios HTTP já são gerados pelo pipeline. Siga [docs/HOSTINGER.md](docs/HOSTINGER.md) para configurar e validar a instalação.
 
 O pacote manual continua disponível em `dist/`. Ele pode ser instalado sem GitHub. Nenhuma senha deve ser adicionada ao repositório nem à branch de produção. A integração remota ainda precisa ser conectada nas contas; os workflows locais, isoladamente, não publicam o projeto.
+
+## Ponte Orange Pi HTTP → HTTPS
+
+O componente [bridge/](bridge/README.md) recebe os envios locais em HTTP, guarda em SQLite e encaminha ao endpoint HTTPS `/api/energia/bridge`. O receptor reconhece reenvios, preservando os horarios e corpos originais. O componente e instalado separadamente da aplicacao web e nao depende do MySQL local.

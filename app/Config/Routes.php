@@ -13,3 +13,5 @@ $routes->get('api/summary', 'Energy::summary');
 
 $routes->get('history', 'Energy::historyForm');
 $routes->post('history', 'Energy::importHistory', ['filter'=>'csrf']);
+
+$routes->post('api/energia/bridge', 'Energy::receiveBridge');

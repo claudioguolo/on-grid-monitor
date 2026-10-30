@@ -25,6 +25,8 @@ jobs:
       - run: docker compose run --rm --no-deps -v "$PWD/tests:/var/www/html/tests:ro" app php tests/energy_check.php
       - run: python3 tools/wait_health.py
       - run: python3 tests/bootstrap_check.py
+      - run: python3 -m unittest discover -s bridge -p "test_*.py" -v
+      - run: python3 tests/bridge_http_check.py
       - run: docker compose cp app:/var/www/html/vendor ./vendor
       - run: python3 tools/package_hostinger.py
       - run: python3 tests/publish_check.py

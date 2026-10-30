@@ -61,6 +61,39 @@ class Energy extends BaseController
             'parsed'=>json_encode($parsed,JSON_THROW_ON_ERROR|JSON_INVALID_UTF8_SUBSTITUTE)]);
         return $this->json(['ok'=>true,'id'=>(int)$db->insertID()]);
     }
+    public function receiveBridge()
+    {
+        $token=(string)env('METER_TOKEN',env('meter.token',''));
+        if ($token==='') return $this->response->setStatusCode(503)->setJSON(['error'=>'Configure meter.token']);
+        if (!hash_equals($token,$this->request->getHeaderLine('X-Meter-Token'))) {
+            return $this->response->setStatusCode(401)->setJSON(['error'=>'Token invalido']);
+        }
+        $config=Parameters::load();$body=(string)$this->request->getBody();
+        if (strlen($body)>$config['max_payload_bytes']*2+8192) return $this->response->setStatusCode(413)->setJSON(['error'=>'Envelope muito grande']);
+        try {
+            $event=json_decode($body,true,512,JSON_THROW_ON_ERROR);
+            if (!is_array($event)) throw new \InvalidArgumentException('Envelope invalido');
+            $row=\App\Libraries\BridgeEnvelope::row($event,$config['max_payload_bytes']);
+        } catch (\JsonException|\InvalidArgumentException $e) {
+            return $this->response->setStatusCode(400)->setJSON(['error'=>'Envelope invalido ou relogio incorreto']);
+        }
+        $db=db_connect();
+        $existing=$db->table('readings')->select('id,parsed')->where('import_key',$row['import_key'])->get()->getRowArray();
+        if (!$existing) {
+            try {
+                if (!$db->table('readings')->insert($row)) throw new \RuntimeException('Falha ao armazenar evento');
+                return $this->json(['ok'=>true,'event_id'=>$event['event_id'],'id'=>(int)$db->insertID(),'duplicate'=>false]);
+            } catch (\Throwable $error) {
+                // A retry may race a prior request whose acknowledgement was lost.
+                $existing=$db->table('readings')->select('id,parsed')->where('import_key',$row['import_key'])->get()->getRowArray();
+                if (!$existing) throw $error;
+            }
+        }
+        $stored=json_decode($existing['parsed'],true)['bridge']['digest']??'';
+        $incoming=json_decode($row['parsed'],true)['bridge']['digest'];
+        if (!hash_equals($stored,$incoming)) return $this->response->setStatusCode(409)->setJSON(['error'=>'Evento existente com conteudo diferente']);
+        return $this->json(['ok'=>true,'event_id'=>$event['event_id'],'id'=>(int)$existing['id'],'duplicate'=>true]);
+    }
     public function readings()
     {
         if ($denied=$this->protectedAccess()) return $denied;
