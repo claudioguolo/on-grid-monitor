@@ -7,7 +7,7 @@ target.parent.mkdir(exist_ok=True)
 if not (root / 'vendor/codeigniter4/framework/system/Boot.php').exists():
     raise SystemExit('Execute composer install --no-dev antes de empacotar')
 with ZipFile(target, 'w', ZIP_DEFLATED) as archive:
-    for name in ['app', 'public', 'vendor', 'config', 'database']:
+    for name in ['app', 'public', 'vendor', 'config', 'database', 'docs']:
         for path in (root / name).rglob('*'):
             if path.is_file():
                 archive.write(path, path.relative_to(root))
