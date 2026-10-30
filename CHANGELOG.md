@@ -2,6 +2,9 @@
 
 ## Alteracoes posteriores a 1.0.0-php
 
+- Versao automatica por commit, identificacao discreta no painel e pipeline GitHub para branch Hostinger com dependencias prontas.
+- Configuracoes e writable de producao podem ficar em energia_runtime, fora da pasta de deploy.
+
 - Instalacao inicial automatica das tabelas no primeiro acesso, com lock MySQL, configuracao DB_AUTO_MIGRATE e preservacao de bancos existentes.
 
 - Migration inicial autocontida com Database Forge, indices e preservacao de tabelas ja importadas; instrucoes de instalacao por Spark.

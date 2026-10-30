@@ -1,15 +1,58 @@
-name: PHP MySQL
-on: [push, pull_request]
+name: Validar e publicar
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: energia-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: python3 tests/version_check.py
+      - run: python3 tools/version.py
       - run: cp .env.example .env
       - run: docker compose up -d --build
       - run: docker compose exec -T app php spark migrate --all
       - run: docker compose run --rm --no-deps -v "$PWD/tests:/var/www/html/tests:ro" app php tests/energy_check.php
       - run: docker compose exec -T app php -r 'if (json_decode(file_get_contents("http://localhost/health"),true)["ok"] !== true) exit(1);'
       - run: python3 tests/bootstrap_check.py
+      - run: docker compose cp app:/var/www/html/vendor ./vendor
+      - run: python3 tools/package_hostinger.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hostinger-package
+          path: dist/coletor_energia_php-hostinger.zip
       - if: always()
         run: docker compose down -v
+  publish:
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: hostinger-package
+          path: dist
+      - name: Atualizar branch de producao
+        run: python3 tools/publish_hostinger.py dist/coletor_energia_php-hostinger.zip
+      - name: Registrar tag da versao
+        run: |
+          VERSION=$(python3 tools/version.py)
+          if ! git rev-parse "refs/tags/v${VERSION}" >/dev/null 2>&1; then
+            git tag "v${VERSION}" "$GITHUB_SHA"
+            git push origin "refs/tags/v${VERSION}"
+          fi

@@ -18,11 +18,13 @@ body{font:16px system-ui;background:#0c1726;color:#e8eff9;max-width:1100px;margi
 @media(max-width:600px){.phase-grid{grid-template-columns:1fr}.dashboard{padding:16px}.cards{gap:12px}.card{flex-basis:100%}.tabs button{flex:1;padding:12px 16px}}
 
 .energy-scroll{max-width:100%;overflow-x:auto}.energy-summary{width:100%;min-width:560px;border-collapse:collapse}.energy-summary th,.energy-summary td{text-align:right;padding:16px 12px;border-bottom:1px solid #29394f;font-variant-numeric:tabular-nums}.energy-summary th:first-child,.energy-summary td:first-child{text-align:left;width:34%;padding-left:0}.energy-summary td:not(:first-child){font-size:clamp(16px,1.6vw,23px);white-space:nowrap}.energy-summary .coverage{margin-top:5px;font-size:11px}.energy-summary th{font-weight:600}
+.release-badge{float:right;margin:0 0 12px 16px;padding:5px 9px;border:1px solid #29394f;border-radius:6px;color:#9aacc1;font:12px ui-monospace,monospace;letter-spacing:.3px}
 </style>
 <aside class="sidebar" aria-label="Identificação da aplicação"><span class="sidebar-brand">ENERGIA / LOCAL</span><small>Monitor bifásico<br>IE Tecnologia · SM-3W Lite</small></aside>
 <main class="dashboard">
+<div class="release-badge" title="Versão instalada da aplicação">v<?= esc(trim(file_get_contents(ROOTPATH . 'VERSION'))) ?></div>
 <p><a href="<?= esc($appPath . '/history') ?>">Importar histórico TXT</a></p><div class="eyebrow">Monitoramento de energia · rede local</div><h1>Visão geral da instalação</h1>
-<p>IE Tecnologia · SM-3W Lite · instalação com duas fases · <span id="version"></span></p>
+<p>IE Tecnologia · SM-3W Lite · instalação com duas fases</p>
 <div class="cards">
 <div class="card">Conexão<div class="value" id="status">Carregando…</div></div>
 <div class="card">Envios armazenados<div class="value" id="total">—</div></div>
@@ -161,7 +163,7 @@ async function refresh(){try{
 }catch(e){updateLive(null,false);el('error').textContent='Não foi possível atualizar: '+e.message;el('status').textContent='Falha de conexão';}}
 async function start(){try{
  const response=await fetch(API_PREFIX+'/api/settings');if(!response.ok)throw new Error('HTTP '+response.status);settings=await response.json();
- el('version').textContent='v'+settings.version;el('timezone').textContent=settings.timezone;el('period').value=String(settings.default_chart_hours);el('technical-period').value=String(settings.default_chart_hours);
+ el('timezone').textContent=settings.timezone;el('period').value=String(settings.default_chart_hours);el('technical-period').value=String(settings.default_chart_hours);
  refresh();refreshCharts();refreshEnergy();
  setInterval(refreshTechnical,settings.refresh_seconds*1000);setInterval(refresh,settings.refresh_seconds*1000);setInterval(refreshCharts,settings.refresh_seconds*1000);setInterval(refreshEnergy,settings.refresh_seconds*1000);
 }catch(e){el('error').textContent='Falha ao carregar parâmetros: '+e.message;}}
