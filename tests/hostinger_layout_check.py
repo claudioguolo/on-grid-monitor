@@ -26,6 +26,7 @@ try:
   # Disposable fixture must be writable by the Apache uid inside the container.
   for path in [directory,*directory.rglob('*')]:os.chmod(path,0o777 if path.is_dir() else 0o644)
   run('docker','compose','run','-d','--no-deps','--name',container,'-v',f'{directory}:/var/www/html','-e','DB_NAME='+name,'-e','APP_BASE_URL=http://localhost/energia/','-e','DASHBOARD_USERNAME=test','-e','DASHBOARD_PASSWORD=test-password','app')
+  run('python3','tools/wait_health.py','--container',container,'--socket-only')
   code='''$c=stream_context_create(['http'=>['ignore_errors'=>true,'header'=>'Authorization: Basic '.base64_encode('test:test-password')]]);foreach(['/energia/','/energia/api/settings','/energia/private/config/software.json','/energia/private/VERSION','/energia/private/vendor/autoload.php','/energia/private/.htaccess'] as $p){$body=file_get_contents('http://localhost'.$p,false,$c);preg_match('/\\s(\\d{3})\\s/',$http_response_header[0],$m);echo json_encode(['path'=>$p,'status'=>(int)$m[1],'body'=>$p==='/energia/api/settings'?json_decode($body,true):null])."\\n";}'''
   result=run('docker','exec',container,'php','-r',code)
   rows=[json.loads(line) for line in result.splitlines()]

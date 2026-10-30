@@ -23,7 +23,7 @@ jobs:
       - run: docker compose up -d --build
       - run: docker compose exec -T app php spark migrate --all
       - run: docker compose run --rm --no-deps -v "$PWD/tests:/var/www/html/tests:ro" app php tests/energy_check.php
-      - run: docker compose exec -T app php -r 'if (json_decode(file_get_contents("http://localhost/health"),true)["ok"] !== true) exit(1);'
+      - run: python3 tools/wait_health.py
       - run: python3 tests/bootstrap_check.py
       - run: docker compose cp app:/var/www/html/vendor ./vendor
       - run: python3 tools/package_hostinger.py

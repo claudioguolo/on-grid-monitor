@@ -25,6 +25,7 @@ def start(*environment):
     for value in environment:
         args += ['-e', value]
     run(*args, 'app')
+    run('python3','tools/wait_health.py','--container',container,'--socket-only')
 
 
 def stop():
