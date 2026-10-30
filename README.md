@@ -11,7 +11,7 @@ docker compose up -d --build
 docker compose exec -T app php spark migrate --all
 ```
 
-Painel: http://localhost:8081. A versão Python permanece na porta 8080, com seu volume SQLite preservado. O medidor continua apontado para ela até a troca explícita do destino. Não há sincronização contínua automática entre os bancos.
+Painel: http://localhost:8080. A versão PHP agora ocupa a porta 8080 e recebe diretamente os envios do medidor. O contêiner Python foi baixado e seu volume SQLite permanece preservado para recuperação. Não inicie os dois projetos na mesma porta.
 
 Recepção compatível: `POST` ou `GET /api/energia/medidor`, JSON, formulário ou texto. Os nomes dos campos, sinais, valores e APIs de gráficos permanecem compatíveis. MySQL guarda corpo original binário, JSON interpretado, origem, método e horário UTC. Os dados legados conservam seu horário original. O painel exibe tensão, corrente, potência ativa, reativa e aparente, fator de potência, frequência, energia por período e gráficos técnicos das fases A e B. Fase C desconectada.
 
@@ -41,7 +41,7 @@ docker compose cp backups/python-history.ndjson app:/tmp/python-history.ndjson
 docker compose exec -T app php spark energia:import-python /tmp/python-history.ndjson
 ```
 
-O importador é transacional e idempotente: uma segunda execução ignora os mesmos registros. Os IDs internos MySQL podem diferir dos IDs SQLite; os dados das medições são preservados e há uma chave de proveniência para deduplicação. Como a coleta Python continua ativa, repita uma exportação consistente e a importação no momento da troca de destino para trazer as novas medições.
+O importador é transacional e idempotente: uma segunda execução ignora os mesmos registros. Os IDs internos MySQL podem diferir dos IDs SQLite; os dados das medições são preservados e há uma chave de proveniência para deduplicação. A transferência final preservou 4.160 registros do Python, com 171 novos registros acrescentados à cópia inicial. A coleta Python está encerrada; os novos envios são armazenados diretamente no MySQL. Backups da troca ficam em `backups/cutover/`. Para voltar ao Python, primeiro pare o PHP e só então inicie o projeto Python; medições recebidas exclusivamente pelo PHP precisariam de transferência própria.
 
 ## Importar TXT
 

@@ -3,10 +3,10 @@ services:
   app:
     build: .
     ports:
-      - "8081:80"
+      - "8080:80"
     environment:
       CI_ENVIRONMENT: development
-      APP_BASE_URL: http://localhost:8081/
+      APP_BASE_URL: http://localhost:8080/
       DB_HOST: db
       DB_NAME: energia
       DB_USER: energia

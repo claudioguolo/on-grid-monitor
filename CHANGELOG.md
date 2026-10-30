@@ -2,6 +2,9 @@
 
 ## Alteracoes posteriores a 1.0.0-php
 
+- PHP assume a porta 8080 e recebe os envios reais do medidor.
+- Transferencia final do SQLite para MySQL com verificacao integral; coletor Python baixado e volume preservado.
+
 - Barra lateral com largura reservada no desktop e faixa superior em telas menores.
 - Ajustes de grades, tabelas e cartoes para evitar sobreposicao e rolagem horizontal.
 
