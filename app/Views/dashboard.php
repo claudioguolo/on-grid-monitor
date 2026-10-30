@@ -25,7 +25,7 @@ body{font:16px system-ui;background:#0c1726;color:#e8eff9;max-width:1100px;margi
 <main class="dashboard">
 <form class="logout-form" method="post" action="<?= esc($appPath . '/logout') ?>"><?= csrf_field() ?><button type="submit">Sair</button></form>
 <div class="release-badge" title="Versão instalada da aplicação">v<?= esc(trim(file_get_contents(ROOTPATH . 'VERSION'))) ?></div>
-<p><a href="<?= esc($appPath . '/history') ?>">Importar histórico TXT</a></p><div class="eyebrow">Monitoramento de energia · rede local</div><h1>PY9MT Energia</h1>
+<?php if(\App\Libraries\PanelAuth::isAdmin()): ?><p><a href="<?= esc($appPath . '/history') ?>">Importar histórico TXT</a> · <a href="<?= esc($appPath.'/admin') ?>">Administração</a></p><?php endif ?><div class="eyebrow">Monitoramento de energia · rede local</div><h1>PY9MT Energia</h1>
 <p>IE Tecnologia · SM-3W Lite · instalação com duas fases</p>
 <div class="cards">
 <div class="card">Conexão<div class="value" id="status">Carregando…</div></div>

@@ -21,3 +21,13 @@ $routes->post('api/energia/archive', 'Energy::receiveArchive');
 $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::authenticate', ['filter'=>'csrf']);
 $routes->post('logout', 'Auth::logout', ['filter'=>'csrf']);
+
+$routes->get('admin', 'Admin::users');
+$routes->get('admin/users', 'Admin::users');
+$routes->get('admin/users/new', 'Admin::edit');
+$routes->get('admin/users/(:num)', 'Admin::edit/$1');
+$routes->post('admin/users', 'Admin::saveUser', ['filter'=>'csrf']);
+$routes->post('admin/users/(:num)', 'Admin::saveUser/$1', ['filter'=>'csrf']);
+$routes->get('admin/settings', 'Admin::settings');
+$routes->post('admin/settings', 'Admin::saveSettings', ['filter'=>'csrf']);
+$routes->get('admin/audit', 'Admin::audit');

@@ -2,6 +2,10 @@
 
 ## Alteracoes posteriores a 1.0.0-php
 
+- Area administrativa com usuarios, perfis Administrador/Consulta, senhas em hash, ativacao e redefinicao de senha.
+- Migracao do acesso atual para primeiro administrador, invalidacao de sessoes apos alteracoes e protecao do proprio acesso.
+- Configuracoes persistentes no MySQL e auditoria das alteracoes administrativas.
+
 - Tela de login e sessao de duas horas, logout por POST, CSRF e limite de tentativas, preservando as credenciais existentes.
 - Cookies protegidos em HTTPS; APIs de consulta exigem sessao e nao apresentam HTTP Basic; endpoints do medidor continuam com token.
 

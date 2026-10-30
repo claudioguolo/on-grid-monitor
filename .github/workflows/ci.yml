@@ -27,6 +27,7 @@ jobs:
       - run: python3 tests/bootstrap_check.py
       - run: python3 -m unittest discover -s bridge -p "test_*.py" -v
       - run: python3 tests/bridge_http_check.py
+      - run: python3 tests/bridge_http_check.py admin_http_check.php
       - run: docker compose cp app:/var/www/html/vendor ./vendor
       - run: python3 tools/package_hostinger.py
       - run: python3 tests/publish_check.py

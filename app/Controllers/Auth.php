@@ -18,9 +18,9 @@ class Auth extends BaseController
         $key='panel-login-'.hash('sha256',$this->request->getIPAddress());
         $allowed=service('throttler')->check($key,10,60);
         $user=$this->request->getPost('username');$password=$this->request->getPost('password');
-        if($configured&&$allowed&&is_string($user)&&is_string($password)&&strlen($user)<=255&&strlen($password)<=1024&&PanelAuth::verify($user,$password)){
+        if($configured&&$allowed&&is_string($user)&&is_string($password)&&strlen($user)<=255&&strlen($password)<=1024&&($account=PanelAuth::authenticate($user,$password))!==null){
             $session=session();$session->regenerate(true);
-            $session->set('panel_identity',['signature'=>PanelAuth::signature(),'expires_at'=>time()+config('Session')->expiration]);
+            $session->set('panel_identity',['user_id'=>(int)$account['id'],'auth_version'=>(int)$account['auth_version'],'expires_at'=>time()+config('Session')->expiration]);
             return redirect()->to(PanelAuth::appPath().'/')->withCookies()->setHeader('Cache-Control','no-store');
         }
         $error=$allowed?'Usuário ou senha inválidos.':'Muitas tentativas. Aguarde um minuto e tente novamente.';

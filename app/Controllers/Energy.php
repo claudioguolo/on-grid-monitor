@@ -158,12 +158,14 @@ class Energy extends BaseController
     public function historyForm()
     {
         if($denied=$this->protectedAccess())return $denied;
+        if(!\App\Libraries\PanelAuth::isAdmin())return $this->response->setStatusCode(403)->setBody('Acesso restrito a administradores.');
         helper('form');
         return view('history',['message'=>'']);
     }
     public function importHistory()
     {
         if($denied=$this->protectedAccess())return $denied;
+        if(!\App\Libraries\PanelAuth::isAdmin())return $this->response->setStatusCode(403)->setBody('Acesso restrito a administradores.');
         helper('form');
         try{
             $file=$this->request->getFile('history');

@@ -11,3 +11,31 @@ CREATE TABLE IF NOT EXISTS readings (
  UNIQUE KEY uq_import_key (import_key),
  INDEX idx_received_at (received_at, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS users (
+ id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ username VARCHAR(191) NOT NULL,
+ display_name VARCHAR(150) NOT NULL,
+ password_hash VARCHAR(255) NOT NULL,
+ role VARCHAR(16) NOT NULL,
+ active TINYINT(1) NOT NULL DEFAULT 1,
+ auth_version INT UNSIGNED NOT NULL DEFAULT 1,
+ created_at VARCHAR(40) NOT NULL,
+ updated_at VARCHAR(40) NOT NULL,
+ UNIQUE KEY uq_users_username (username)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS system_settings (
+ id INT UNSIGNED NOT NULL PRIMARY KEY,
+ settings_json TEXT NOT NULL,
+ updated_at VARCHAR(40) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS admin_audit (
+ id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ actor_id BIGINT UNSIGNED NOT NULL,
+ action VARCHAR(50) NOT NULL,
+ target_id BIGINT UNSIGNED DEFAULT NULL,
+ details TEXT NOT NULL,
+ created_at VARCHAR(40) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

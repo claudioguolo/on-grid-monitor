@@ -121,3 +121,15 @@ O endpoint aceita somente POST HTTPS autenticado, ate 100 registros e 1 MiB por 
 A tela `/login` usa as credenciais existentes `dashboard.username` e `dashboard.password` do `.env` (ou DASHBOARD_USERNAME e DASHBOARD_PASSWORD no Docker). Nao e necessario criar usuario no banco. Opcionalmente, configure `dashboard.passwordHash` ou DASHBOARD_PASSWORD_HASH com um hash gerado por `password_hash`; o hash tem prioridade sobre a senha simples. Nao publique senhas nem hashes no Git.
 
 O login protege painel, historico e APIs de consulta. Sem sessao, paginas redirecionam para o formulario e APIs retornam 401, sem a janela HTTP Basic. Login e logout exigem CSRF, a identificacao da sessao e renovada ao entrar e expira em duas horas. Mudar as credenciais invalida sessoes anteriores. Ha limite de dez tentativas de login por IP por minuto. Cookies sao HttpOnly, SameSite=Lax e Secure quando a URL-base e HTTPS. O botao Sair encerra a sessao; acoes de logout via GET nao sao aceitas. A ponte, a importacao autenticada e o medidor mantem seus tokens independentes, sem sessao de navegador.
+
+## Administração e usuários
+
+O menu **Administração** no painel abre `/admin`. A atualização cria as tabelas users, system_settings e admin_audit automaticamente, preservando readings. O usuário já configurado no .env é convertido uma única vez no primeiro administrador, com senha armazenada por hash. O usuário/senha existente continua funcionando; sessões abertas antes da migração precisam entrar novamente.
+
+Depois dessa criação, o login consulta o banco. Alterar a senha antiga no .env não contorna a senha salva nem reativa contas desativadas. A criação inicial pelo .env só ocorre quando a tabela users está completamente vazia. Mantenha pelo menos um administrador ativo e guarde acesso à conta administrativa.
+
+Administradores cadastram usuários, editam nome/usuário/perfil, redefinem senhas e ativam/desativam contas. Consulta acessa o painel e as APIs de leitura, sem administração ou importação de TXT. Não há exclusão física de contas. Senhas novas exigem 12 caracteres e até 72 bytes; senhas legadas são preservadas na migração. Alterações de usuário invalidam sessões existentes dessa conta. Não é possível desativar a própria conta ou retirar o próprio perfil administrativo, e a operação protege os administradores ativos com lock transacional.
+
+As configurações de atualização, fuso, tempo sem envio, limite de histórico, tamanho de payload e período inicial são salvas em system_settings. Têm prioridade sobre config/software.json e sobrevivem aos deploys. O arquivo JSON continua sendo o padrão inicial. Banco, tokens e configuração da ponte seguem no ambiente privado; não ficam expostos nessa tela. O histórico administrativo registra autor, ação e data, sem senhas ou hashes.
+
+Teste isolado: `python3 tests/bridge_http_check.py admin_http_check.php`. Para instalações com DB_AUTO_MIGRATE=false, execute `php spark migrate --all` antes de acessar o painel. A migração administrativa adiciona tabelas e não modifica as medições; faça backup antes de atualizações. Não use rollback para instalar: o down remove as tabelas administrativas.

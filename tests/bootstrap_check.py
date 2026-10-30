@@ -49,7 +49,7 @@ try:
     with ThreadPoolExecutor(max_workers=4) as pool:
         results = list(pool.map(lambda _: health(), range(4)))
     assert all('200' in result['status'] and result['body']['ok'] for result in results), results
-    assert sql(f'SELECT COUNT(*) FROM {database}.migrations') == '1'
+    assert sql(f'SELECT COUNT(*) FROM {database}.migrations') == '2'
     sql(f'''INSERT INTO {database}.readings
         (received_at,source,method,content_type,query,body,parsed)
         VALUES ('2026-10-30T00:00:00+00:00','validation','IMPORT','text/plain','','keep','{{}}')''')
