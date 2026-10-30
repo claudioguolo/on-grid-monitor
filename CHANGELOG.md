@@ -2,6 +2,8 @@
 
 ## Alteracoes posteriores a 1.0.0-php
 
+- Instalacao inicial automatica das tabelas no primeiro acesso, com lock MySQL, configuracao DB_AUTO_MIGRATE e preservacao de bancos existentes.
+
 - Migration inicial autocontida com Database Forge, indices e preservacao de tabelas ja importadas; instrucoes de instalacao por Spark.
 
 - APIs, links e formulario usam o mesmo endereco acessado no navegador, funcionando por IP e localhost e preservando instalacoes em subpastas.

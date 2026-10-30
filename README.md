@@ -25,7 +25,7 @@ Recepção compatível: `POST` ou `GET /api/energia/medidor`, JSON, formulário 
 4. Se o hPanel não permitir alterar o document root, coloque o projeto em `domains/SEUDOMINIO/energia_app/`. Copie apenas o conteúdo de `public/`, incluindo `.htaccess`, para `domains/SEUDOMINIO/public_html/`. Nesse `public_html/index.php`, altere `require FCPATH . '../app/Config/Paths.php';` para `require FCPATH . '../energia_app/app/Config/Paths.php';`. Mantenha uma cópia de `public/` dentro de `energia_app` para o restante do projeto.
 5. No diretório privado do projeto, crie `.env` a partir de `env.hostinger.example`. Preencha a URL HTTPS, as credenciais MySQL, usuário/senha do painel e token do medidor. O usuário do painel é solicitado pelo navegador via HTTP Basic. Em produção, APIs de consulta e painel ficam bloqueados se as credenciais não estiverem configuradas. A recepção exige o token.
 6. Garanta que `writable/cache`, `writable/logs`, `writable/session` e `writable/uploads` existam e sejam graváveis pelo PHP. Comece com permissões 755, ajustando conforme o usuário da hospedagem; não use 777 indiscriminadamente.
-7. Pelo phpMyAdmin, importe `database/schema.sql` para criar as tabelas vazias. Para levar o histórico já migrado, importe **em vez disso** o dump `backups/mysql-history.sql` em um banco vazio. O dump tem dados privados: transfira pelo phpMyAdmin e não o coloque na pasta pública. Alternativamente, com SSH, execute `php spark migrate --all` e o importador NDJSON.
+7. As tabelas sao criadas automaticamente na primeira requisicao, inclusive ao abrir o painel, desde que as credenciais e permissoes MySQL estejam corretas. Opcionalmente, importe `database/schema.sql` pelo phpMyAdmin. Para levar o histórico já migrado, importe **em vez disso** o dump `backups/mysql-history.sql` em um banco vazio. O dump tem dados privados: transfira pelo phpMyAdmin e não o coloque na pasta pública. Alternativamente, com SSH, execute `php spark migrate --all` e o importador NDJSON.
 8. Abra `/health`, o painel e a aba Técnica. Confira os totais antes de configurar o aparelho. O login deve ser exigido no painel e `/api/readings`.
 9. No medidor, use o domínio do servidor, o caminho `/api/energia/medidor?token=SEU_TOKEN`, a porta/protocolo suportados pelo firmware e o envio HTTP POST. O suporte a HTTPS do aparelho precisa ser confirmado: a tela atual só demonstra HTTP. Não exponha usuário/senha do painel no endereço do medidor. Se o aparelho não suportar HTTPS, use uma ponte local que encaminhe os envios por HTTPS, ou valide uma solução de transporte apropriada antes de publicar a recepção; o coletor atual não implementa essa ponte.
 
@@ -74,6 +74,16 @@ No Docker local, use `docker compose exec -T app php spark migrate --all`.
 
 A migration `2026-10-30-000001_CreateReadings` cria `readings`, chave primária, índice cronológico e chave única de importação diretamente pelo Database Forge do CodeIgniter, sem depender do arquivo SQL. O framework cria a tabela `migrations` para controlar o que já foi executado. Uma segunda execução não recria nem apaga tabelas. Uma tabela `readings` existente (por importação SQL) é preservada; a migration não corrige automaticamente uma estrutura externa incompatível.
 
-A migration cria as tabelas **dentro do banco existente**; não cria o banco nem o usuário MySQL. Abrir o painel não executa migrations automaticamente. Se o plano não tiver SSH/terminal, use a importação de `database/schema.sql` pelo phpMyAdmin. Não há endpoint web para alterar o esquema.
+A migration cria as tabelas **dentro do banco existente**; não cria o banco nem o usuário MySQL. O primeiro acesso executa as migrations de instalacao se `readings` ainda nao existir. Se o plano não tiver SSH/terminal, use a importação de `database/schema.sql` pelo phpMyAdmin. Não há endpoint web para alterar o esquema.
 
 O comando de rollback é destrutivo: o método `down()` remove `readings` e suas medições. Faça backup antes de qualquer rollback; ele não é necessário na instalação normal.
+
+## Inicialização automática sem SSH
+
+Depois de criar o banco vazio no hPanel e preencher `.env`, basta acessar o painel: o filtro `InitializeDatabase` cria as tabelas com a migration inicial. Isso também acontece se o primeiro acesso for um envio do medidor. O usuário MySQL precisa ter permissões de criação de tabelas e índices.
+
+O padrão é `DB_AUTO_MIGRATE=true`; use `DB_AUTO_MIGRATE=false` no `.env` para optar exclusivamente pela instalação manual. Quando `readings` já existe, o filtro não executa migrations nem altera os registros existentes. Atualizações futuras de esquema continuam usando `php spark migrate --all`; esta automação é para a instalação inicial. O banco e usuário MySQL continuam sendo criados pelo hPanel.
+
+A inicialização usa um lock MySQL para serializar primeiros acessos simultâneos. Falhas de credenciais ou permissões retornam HTTP 503 com orientação genérica e detalhes nos logs privados; um acesso posterior tenta novamente. Não há rota pública para rollback ou atualização manual do esquema.
+
+Para validar a inicialização automática: `python3 tests/bootstrap_check.py` com o Compose ativo. O teste usa banco e contêineres temporários isolados e os remove ao final.
