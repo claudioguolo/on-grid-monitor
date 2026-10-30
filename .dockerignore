@@ -1,0 +1,10 @@
+vendor
+.git
+.env
+writable/*
+!writable/.htaccess
+tests
+backups
+
+dist
+.github
