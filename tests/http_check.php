@@ -1,15 +1,29 @@
 <?php
 // Run only against an isolated database/container with test-only credentials.
 function check($value,$message){if(!$value)throw new RuntimeException($message);}
+$cookieJar=[];
 function request($path,$method='GET',$body='',$headers=[]){
+    global $cookieJar;
+    if($cookieJar)$headers[]='Cookie: '.implode('; ',array_map(fn($k,$v)=>$k.'='.$v,array_keys($cookieJar),$cookieJar));
     $context=stream_context_create(['http'=>['method'=>$method,'content'=>$body,'header'=>implode("\r\n",$headers),'ignore_errors'=>true,'follow_location'=>0,'timeout'=>15]]);
     $text=file_get_contents('http://localhost'.$path,false,$context);$h=$http_response_header??[];
+    foreach($h as $header)if(stripos($header,'Set-Cookie:')===0){$pair=explode('=',explode(';',trim(substr($header,11)))[0],2);if(count($pair)===2)$cookieJar[$pair[0]]=$pair[1];}
     preg_match('/\s(\d{3})\s/',$h[0]??'',$m);
     return [(int)($m[1]??0),$text,$h];
 }
-$auth='Authorization: Basic '.base64_encode('test:test-only-password');
+$auth='';
 check(request('/api/readings')[0]===401,'Painel deve exigir autenticacao');
-check(request('/api/settings','GET','',[$auth])[0]===200,'Credenciais do painel');
+check(request('/')[0]===302,'Painel redireciona ao login sem janela Basic');
+[$status,$page]=request('/login');check($status===200&&str_contains($page,'PY9MT'),'Tela de login');
+preg_match('/name="([^\"]+)" value="([^\"]+)"/',$page,$loginCsrf);
+check(count($loginCsrf)===3,'CSRF do login');
+$loginBody=http_build_query([$loginCsrf[1]=>$loginCsrf[2],'username'=>'test','password'=>'wrong']);
+check(request('/login','POST',$loginBody,['Content-Type: application/x-www-form-urlencoded'])[0]===401,'Senha incorreta');
+[$status,$page]=request('/login');preg_match('/name="([^\"]+)" value="([^\"]+)"/',$page,$loginCsrf);
+$loginBody=http_build_query([$loginCsrf[1]=>$loginCsrf[2],'username'=>'test','password'=>'test-only-password']);
+[$loginStatus,$loginResult]=request('/login','POST',$loginBody,['Content-Type: application/x-www-form-urlencoded']);
+check(in_array($loginStatus,[302,303],true),'Login por sessao: HTTP '.$loginStatus);
+check(request('/api/settings')[0]===200,'API autenticada por sessao');
 check(request('/api/energia/medidor','POST','{}',['Content-Type: application/json'])[0]===401,'Medidor deve exigir token');
 $path='/api/energia/medidor?token=test-only-token';
 $body='{"id":"1","pa":"100","pb":"-300","qa":"-20","freq":"59.97"}';
@@ -33,7 +47,7 @@ check(count($csrf)===3,'Token CSRF no formulario');
 $cookies=[];foreach($headers as $header)if(stripos($header,'Set-Cookie:')===0)$cookies[]=explode(';',trim(substr($header,11)))[0];
 $boundary='energiaValidationBoundary';$line='12:50:44:-18544:-41415:-1:-59961:1062:699:0:1790:104:281:0:381:330:335:0:12902:12475:3';
 $payload='--'.$boundary."\r\nContent-Disposition: form-data; name=\"".$csrf[1]."\"\r\n\r\n".$csrf[2]."\r\n--".$boundary."\r\nContent-Disposition: form-data; name=\"history\"; filename=\"28102026.txt\"\r\nContent-Type: text/plain\r\n\r\n".$line."\r\n--".$boundary."--\r\n";
-[$status,$result]=request('/history','POST',$payload,[$auth,'Cookie: '.implode('; ',$cookies),'Content-Type: multipart/form-data; boundary='.$boundary]);
+[$status,$result]=request('/history','POST',$payload,[$auth,'Content-Type: multipart/form-data; boundary='.$boundary]);
 check($status===200&&str_contains($result,'1 registros importados'),'Upload TXT e CSRF');
 [$status,$text]=request('/api/readings','GET','',[$auth]);$d=json_decode($text,true);check($d['total']===5,'Historico acrescentado');
 check($d['readings'][0]['method']!=='IMPORT','Historico nao deve substituir ultima telemetria');
@@ -73,3 +87,21 @@ $history=array_values(array_filter($latest['readings'],fn($r)=>$r['source']==='h
 check($history['body']===base64_decode($archived['body_base64']),'Historico: bytes originais preservados');
 check($history['parsed']['payload']['pa']==='-303.63','Historico: nao divide valores novamente');
 echo "Historico em lotes: importacao, integridade, duplicatas, conflito e autenticacao: OK\n";
+
+check(request('/logout','POST','',['X-Requested-With: XMLHttpRequest'])[0]===403,'Logout exige CSRF');
+check(request('/api/settings')[0]===200,'CSRF invalido nao encerra sessao');
+[$status,$page]=request('/');preg_match('/name="([^\"]+)" value="([^\"]+)"/',$page,$logoutCsrf);
+check(count($logoutCsrf)===3,'CSRF do logout');
+check(in_array(request('/logout','POST',http_build_query([$logoutCsrf[1]=>$logoutCsrf[2]]),['Content-Type: application/x-www-form-urlencoded'])[0],[302,303],true),'Logout');
+check(request('/api/readings')[0]===401,'Sessao encerrada apos logout');
+check(request('/')[0]===302,'Painel protegido apos logout');
+echo "Login: tela, CSRF, senha incorreta, sessao, APIs e logout: OK\n";
+
+$rateLimited=false;
+for($attempt=0;$attempt<12;$attempt++){
+ [$status,$page]=request('/login');preg_match('/name="([^\"]+)" value="([^\"]+)"/',$page,$rateCsrf);
+ [$status]=request('/login','POST',http_build_query([$rateCsrf[1]=>$rateCsrf[2],'username'=>'test','password'=>'wrong']),['Content-Type: application/x-www-form-urlencoded']);
+ if($status===429){$rateLimited=true;break;}
+}
+check($rateLimited,'Tentativas de login limitadas');
+echo "Login: limite de tentativas e protecao de logout: OK\n";

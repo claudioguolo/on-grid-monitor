@@ -8,17 +8,12 @@ class Energy extends BaseController
 {
     private function protectedAccess(): ?ResponseInterface
     {
-        $user=(string)env('DASHBOARD_USERNAME',env('dashboard.username','')); $pass=(string)env('DASHBOARD_PASSWORD',env('dashboard.password',''));
-        if ($user==='' || $pass==='') {
-            return ENVIRONMENT==='production' ? $this->response->setStatusCode(503)->setJSON(['error'=>'Configure as credenciais do painel']) : null;
+        if (\App\Libraries\PanelAuth::signedIn()) return null;
+        $path=trim($this->request->getUri()->getPath(),'/');
+        if(str_contains('/'.$path,'/api/')){
+            return $this->response->setStatusCode(401)->setHeader('Cache-Control','no-store')->setJSON(['error'=>'Sessao expirada ou autenticacao necessaria']);
         }
-        $header=$this->request->getHeaderLine('Authorization');
-        $decoded=str_starts_with($header,'Basic ')?base64_decode(substr($header,6),true):false;
-        $pair=$decoded!==false?explode(':',$decoded,2):[];
-        if (count($pair)!==2 || !hash_equals($user,$pair[0]) || !hash_equals($pass,$pair[1])) {
-            return $this->response->setHeader('WWW-Authenticate','Basic realm="Energia", charset="UTF-8"')->setStatusCode(401)->setJSON(['error'=>'Autenticacao necessaria']);
-        }
-        return null;
+        return redirect()->to(\App\Libraries\PanelAuth::appPath().'/login')->setHeader('Cache-Control','no-store');
     }
     private function json($data): ResponseInterface
     {
@@ -27,6 +22,7 @@ class Energy extends BaseController
     public function index()
     {
         if ($denied=$this->protectedAccess()) return $denied;
+        helper('form');
         return $this->response->setHeader('Cache-Control','no-store')->setBody(view('dashboard'));
     }
     public function health()

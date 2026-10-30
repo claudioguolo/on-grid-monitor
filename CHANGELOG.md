@@ -2,6 +2,9 @@
 
 ## Alteracoes posteriores a 1.0.0-php
 
+- Tela de login e sessao de duas horas, logout por POST, CSRF e limite de tentativas, preservando as credenciais existentes.
+- Cookies protegidos em HTTPS; APIs de consulta exigem sessao e nao apresentam HTTP Basic; endpoints do medidor continuam com token.
+
 - Exportacao consistente do MySQL local e importacao HTTPS em lotes, preservando dados brutos, horarios e verificacao SHA-256 por registro.
 - Reimportacoes idempotentes e conflitos rejeitados sem substituir medicoes existentes.
 

@@ -6,6 +6,9 @@ services:
       - "8080:80"
     environment:
       CI_ENVIRONMENT: development
+      DASHBOARD_USERNAME: ${DASHBOARD_USERNAME:-}
+      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD:-}
+      DASHBOARD_PASSWORD_HASH: ${DASHBOARD_PASSWORD_HASH:-}
       APP_BASE_URL: http://localhost:8080/
       DB_HOST: db
       DB_NAME: energia

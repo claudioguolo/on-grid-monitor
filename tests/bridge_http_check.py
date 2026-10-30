@@ -3,7 +3,11 @@ import subprocess,uuid
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 name='energia_bridge_'+uuid.uuid4().hex[:8];container=name.replace('_','-')
-def run(*args):return subprocess.check_output(args,cwd=root,text=True).strip()
+def run(*args):
+ result=subprocess.run(args,cwd=root,text=True,stdout=subprocess.PIPE)
+ if result.returncode:print(result.stdout,flush=True)
+ result.check_returncode()
+ return result.stdout.strip()
 def sql(s):return run('docker','compose','exec','-T','db','sh','-c','MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -uroot -e "$1"','sh',s)
 sql(f"CREATE DATABASE {name}; GRANT ALL ON {name}.* TO 'energia'@'%';")
 try:

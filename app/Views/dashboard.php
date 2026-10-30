@@ -19,9 +19,11 @@ body{font:16px system-ui;background:#0c1726;color:#e8eff9;max-width:1100px;margi
 
 .energy-scroll{max-width:100%;overflow-x:auto}.energy-summary{width:100%;min-width:560px;border-collapse:collapse}.energy-summary th,.energy-summary td{text-align:right;padding:16px 12px;border-bottom:1px solid #29394f;font-variant-numeric:tabular-nums}.energy-summary th:first-child,.energy-summary td:first-child{text-align:left;width:34%;padding-left:0}.energy-summary td:not(:first-child){font-size:clamp(16px,1.6vw,23px);white-space:nowrap}.energy-summary .coverage{margin-top:5px;font-size:11px}.energy-summary th{font-weight:600}
 .release-badge{float:right;margin:0 0 12px 16px;padding:5px 9px;border:1px solid #29394f;border-radius:6px;color:#9aacc1;font:12px ui-monospace,monospace;letter-spacing:.3px}
+.logout-form{float:right;margin:0 0 12px 12px}.logout-form button{padding:5px 10px;background:transparent;color:#b9c8da;border:1px solid #40516a;border-radius:6px;font:13px system-ui;cursor:pointer}
 </style>
 <aside class="sidebar" aria-label="Identificação da aplicação"><span class="sidebar-brand">PY9MT Energia</span><small>Monitor bifásico<br>IE Tecnologia · SM-3W Lite</small></aside>
 <main class="dashboard">
+<form class="logout-form" method="post" action="<?= esc($appPath . '/logout') ?>"><?= csrf_field() ?><button type="submit">Sair</button></form>
 <div class="release-badge" title="Versão instalada da aplicação">v<?= esc(trim(file_get_contents(ROOTPATH . 'VERSION'))) ?></div>
 <p><a href="<?= esc($appPath . '/history') ?>">Importar histórico TXT</a></p><div class="eyebrow">Monitoramento de energia · rede local</div><h1>PY9MT Energia</h1>
 <p>IE Tecnologia · SM-3W Lite · instalação com duas fases</p>
@@ -84,7 +86,7 @@ function updateLive(payload,recent){
  el('frequency').textContent=recent&&payload?.freq!==undefined&&Number.isFinite(freq)?fmt(freq)+' Hz':'—';
 }
 async function refreshEnergy(){try{
- const response=await fetch(API_PREFIX+'/api/summary');if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();
+ const response=await fetch(API_PREFIX+'/api/summary');if(response.status===401){window.location.assign(API_PREFIX+'/login');return;}if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();
  const root=el('energy-summary');root.replaceChildren();
  for(const [key,label] of [['today','Hoje'],['week','Semana atual'],['month','Mês atual'],['previous_month','Mês anterior']]){
   const item=data.energy[key],row=document.createElement('tr'),name=document.createElement('th');name.scope='row';name.style.fontWeight='400';name.textContent=label;
@@ -129,7 +131,7 @@ const technicalMetrics=[
 for(const metric of technicalMetrics){const card=document.createElement('article'),heading=document.createElement('h2'),legend=document.createElement('p'),graph=document.createElement('div'),stats=document.createElement('div');heading.textContent=metric.title+(metric.unit?' ['+metric.unit+']':'');legend.className='legend';legend.textContent=metric.keys.length===2?'● Fase A (azul) · ● Fase B (lilás)':'● Frequência da rede';graph.id='technical-'+metric.id;stats.id=graph.id+'-stats';card.append(heading,legend,graph,stats);el('technical-grid').append(card);}
 let technicalBusy=false;
 async function refreshTechnical(){if(!settings||el('technical').hidden||technicalBusy)return;technicalBusy=true;const period=el('technical-period').value;try{
- const response=await fetch(API_PREFIX+'/api/technical?hours='+period);if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();if(period!==el('technical-period').value)return;
+ const response=await fetch(API_PREFIX+'/api/technical?hours='+period);if(response.status===401){window.location.assign(API_PREFIX+'/login');return;}if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();if(period!==el('technical-period').value)return;
  for(const metric of technicalMetrics){const series=metric.keys.map((key,i)=>({key,color:i?'#d4a5ff':'#8bbaff',name:metric.keys.length===1?'Rede':'Fase '+(i?'B':'A')}));chart('technical-'+metric.id,data.points,series,metric.unit,metric.title);
  const root=el('technical-'+metric.id+'-stats');root.replaceChildren();const table=document.createElement('table');table.setAttribute('aria-label','Estatísticas de '+metric.title);const head=document.createElement('tr');for(const text of ['Série','Mín.','Máx.','Média']){const cell=document.createElement('th');cell.textContent=text;head.append(cell);}table.append(head);
  for(const line of series){const values=data.points.map(p=>p[line.key]).filter(Number.isFinite),row=document.createElement('tr');let min=Infinity,max=-Infinity,sum=0;for(const v of values){min=Math.min(min,v);max=Math.max(max,v);sum+=v;}for(const text of [line.name,...(values.length?[min,max,sum/values.length].map(v=>fmt(v)+(metric.unit?' '+metric.unit:'')):['—','—','—'])]){const cell=document.createElement('td');cell.textContent=text;row.append(cell);}table.append(row);}root.append(table);}
@@ -140,7 +142,7 @@ function selectTab(name){for(const tab of ['overview','technical']){el(tab).hidd
 for(const name of ['overview','technical']){el(name+'-tab').addEventListener('click',()=>selectTab(name));el(name+'-tab').addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const target=e.key==='Home'?'overview':e.key==='End'?'technical':name==='overview'?'technical':'overview';selectTab(target);el(target+'-tab').focus();}});}
 let chartBusy=false;
 async function refreshCharts(){if(chartBusy)return;chartBusy=true;try{
- const period=el('period').value,response=await fetch(API_PREFIX+'/api/power?hours='+period);if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();if(period!==el('period').value)return;
+ const period=el('period').value,response=await fetch(API_PREFIX+'/api/power?hours='+period);if(response.status===401){window.location.assign(API_PREFIX+'/login');return;}if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();if(period!==el('period').value)return;
  chart('power-chart',data.points,[{key:'consumption',color:'#ffbc65',name:'Consumo'},{key:'injection',color:'#60dfbe',name:'Injeção'}]);
  chart('phase-chart',data.points,[{key:'a',color:'#8bbaff',name:'Fase A'},{key:'b',color:'#d4a5ff',name:'Fase B'}]);
  const latest=data.points.at(-1),recent=latest&&Date.now()-Date.parse(latest.time)<settings.stale_seconds*1000;
@@ -150,7 +152,7 @@ async function refreshCharts(){if(chartBusy)return;chartBusy=true;try{
 el('period').addEventListener('change',()=>{if(!settings)return;if(chartBusy)setTimeout(refreshCharts,500);else refreshCharts();});
 
 async function refresh(){try{
- const response=await fetch(API_PREFIX+'/api/readings');if(!response.ok)throw new Error('HTTP '+response.status);
+ const response=await fetch(API_PREFIX+'/api/readings');if(response.status===401){window.location.assign(API_PREFIX+'/login');return;}if(!response.ok)throw new Error('HTTP '+response.status);
  const data=await response.json();el('error').textContent='';el('total').textContent=data.total;
  const latest=data.readings[0];el('status').textContent=latest?(Date.now()-Date.parse(latest.received_at)<settings.stale_seconds*1000?'Recebendo':'Sem envio recente'):'Aguardando monitor';
  el('last').textContent=latest?new Date(latest.received_at).toLocaleString('pt-BR'):'—';
@@ -162,7 +164,7 @@ async function refresh(){try{
  for(const r of data.readings){const box=document.createElement('details');const summary=document.createElement('summary');summary.textContent=`#${r.id} · ${new Date(r.received_at).toLocaleString('pt-BR')} · ${r.method} · ${r.source}`;box.append(summary);const pre=document.createElement('pre');pre.textContent=JSON.stringify(r.parsed,null,2);box.append(pre);const raw=document.createElement('pre');raw.textContent='Content-Type: '+(r.content_type||'(ausente)')+'\nQuery: '+r.query+'\nCorpo recebido:\n'+r.body;box.append(raw);root.append(box);}
 }catch(e){updateLive(null,false);el('error').textContent='Não foi possível atualizar: '+e.message;el('status').textContent='Falha de conexão';}}
 async function start(){try{
- const response=await fetch(API_PREFIX+'/api/settings');if(!response.ok)throw new Error('HTTP '+response.status);settings=await response.json();
+ const response=await fetch(API_PREFIX+'/api/settings');if(response.status===401){window.location.assign(API_PREFIX+'/login');return;}if(!response.ok)throw new Error('HTTP '+response.status);settings=await response.json();
  el('timezone').textContent=settings.timezone;el('period').value=String(settings.default_chart_hours);el('technical-period').value=String(settings.default_chart_hours);
  refresh();refreshCharts();refreshEnergy();
  setInterval(refreshTechnical,settings.refresh_seconds*1000);setInterval(refresh,settings.refresh_seconds*1000);setInterval(refreshCharts,settings.refresh_seconds*1000);setInterval(refreshEnergy,settings.refresh_seconds*1000);
