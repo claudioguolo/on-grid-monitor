@@ -5,6 +5,14 @@ final class Parameters
     public static function load(): array
     {
         $c = json_decode(file_get_contents(ROOTPATH.'config/software.json'), true, 512, JSON_THROW_ON_ERROR);
+        if (function_exists('db_connect') && defined('APPPATH') && db_connect()->tableExists('system_settings')) {
+            $stored=db_connect()->table('system_settings')->where('id',1)->get()->getRowArray();
+            if($stored)$c=json_decode($stored['settings_json'],true,512,JSON_THROW_ON_ERROR);
+        }
+        return self::validate($c);
+    }
+    public static function validate(array $c): array
+    {
         $expected = ['timezone','stale_seconds','max_payload_bytes','history_limit','default_chart_hours','refresh_seconds'];
         $keys = array_keys($c); sort($keys); sort($expected);
         if ($keys !== $expected) throw new \RuntimeException('Parametros ausentes ou desconhecidos');

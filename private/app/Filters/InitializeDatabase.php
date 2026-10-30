@@ -20,7 +20,7 @@ class InitializeDatabase implements FilterInterface
         $lockName = '';
         try {
             $db = db_connect();
-            if ($db->tableExists('readings', false)) {
+            if (!array_diff(['readings','users','system_settings','admin_audit'], $db->listTables(false))) {
                 return null;
             }
             $lockName = 'energia-init-' . sha1($db->getDatabase());
@@ -29,11 +29,11 @@ class InitializeDatabase implements FilterInterface
                 throw new \RuntimeException('Inicializacao em andamento; tente novamente');
             }
             // Re-check after acquiring the lock, bypassing the connection cache.
-            if (!$db->tableExists('readings', false)) {
+            if (array_diff(['readings','users','system_settings','admin_audit'], $db->listTables(false))) {
                 if (!service('migrations')->setNamespace('App')->latest()) {
                     throw new \RuntimeException('Nao foi possivel executar a migration inicial');
                 }
-                if (!$db->tableExists('readings', false)) {
+                if (array_diff(['readings','users','system_settings','admin_audit'], $db->listTables(false))) {
                     throw new \RuntimeException('Estrutura inicial nao encontrada apos migration');
                 }
             }

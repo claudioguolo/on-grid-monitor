@@ -8,11 +8,13 @@ $baseDir = dirname($vendorDir);
 return array(
     'App\\Commands\\ImportHistory' => $baseDir . '/app/Commands/ImportHistory.php',
     'App\\Commands\\ImportPython' => $baseDir . '/app/Commands/ImportPython.php',
+    'App\\Controllers\\Admin' => $baseDir . '/app/Controllers/Admin.php',
     'App\\Controllers\\Auth' => $baseDir . '/app/Controllers/Auth.php',
     'App\\Controllers\\BaseController' => $baseDir . '/app/Controllers/BaseController.php',
     'App\\Controllers\\Energy' => $baseDir . '/app/Controllers/Energy.php',
     'App\\Controllers\\Home' => $baseDir . '/app/Controllers/Home.php',
     'App\\Filters\\InitializeDatabase' => $baseDir . '/app/Filters/InitializeDatabase.php',
+    'App\\Libraries\\AdminStore' => $baseDir . '/app/Libraries/AdminStore.php',
     'App\\Libraries\\ArchivedReading' => $baseDir . '/app/Libraries/ArchivedReading.php',
     'App\\Libraries\\BridgeEnvelope' => $baseDir . '/app/Libraries/BridgeEnvelope.php',
     'App\\Libraries\\History' => $baseDir . '/app/Libraries/History.php',

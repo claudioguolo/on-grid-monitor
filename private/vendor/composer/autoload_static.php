@@ -52,11 +52,13 @@ class ComposerStaticInit206d3bcd95e43324ff7cd4e22a988381
     public static $classMap = array (
         'App\\Commands\\ImportHistory' => __DIR__ . '/../..' . '/app/Commands/ImportHistory.php',
         'App\\Commands\\ImportPython' => __DIR__ . '/../..' . '/app/Commands/ImportPython.php',
+        'App\\Controllers\\Admin' => __DIR__ . '/../..' . '/app/Controllers/Admin.php',
         'App\\Controllers\\Auth' => __DIR__ . '/../..' . '/app/Controllers/Auth.php',
         'App\\Controllers\\BaseController' => __DIR__ . '/../..' . '/app/Controllers/BaseController.php',
         'App\\Controllers\\Energy' => __DIR__ . '/../..' . '/app/Controllers/Energy.php',
         'App\\Controllers\\Home' => __DIR__ . '/../..' . '/app/Controllers/Home.php',
         'App\\Filters\\InitializeDatabase' => __DIR__ . '/../..' . '/app/Filters/InitializeDatabase.php',
+        'App\\Libraries\\AdminStore' => __DIR__ . '/../..' . '/app/Libraries/AdminStore.php',
         'App\\Libraries\\ArchivedReading' => __DIR__ . '/../..' . '/app/Libraries/ArchivedReading.php',
         'App\\Libraries\\BridgeEnvelope' => __DIR__ . '/../..' . '/app/Libraries/BridgeEnvelope.php',
         'App\\Libraries\\History' => __DIR__ . '/../..' . '/app/Libraries/History.php',
