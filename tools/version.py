@@ -11,7 +11,11 @@ args = parser.parse_args()
 series = (root / 'VERSION_SERIES').read_text().strip()
 if not re.fullmatch(r'\d+\.\d+', series):
     raise SystemExit('VERSION_SERIES deve ser MAJOR.MINOR')
-result = subprocess.run(['git', 'rev-list', '--count', 'HEAD'], cwd=root, text=True, capture_output=True)
+revisions = ['HEAD']
+merge = subprocess.run(['git', 'rev-parse', '--verify', 'MERGE_HEAD'], cwd=root, text=True, capture_output=True)
+if merge.returncode == 0:
+    revisions += merge.stdout.split()
+result = subprocess.run(['git', 'rev-list', '--count', *revisions], cwd=root, text=True, capture_output=True)
 count = int(result.stdout.strip()) if result.returncode == 0 else 0
 version = f'{series}.{count + int(args.next)}'
 (root / 'VERSION').write_text(version + '\n')

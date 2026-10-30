@@ -16,4 +16,8 @@ with tempfile.TemporaryDirectory(prefix='energia-version-') as tmp:
     (repo/'change.txt').write_text('adjustment');git('add','change.txt');git('commit','-m','adjustment')
     assert git('show','HEAD:VERSION')=='1.0.2'
     assert not git('status','--porcelain')
+    git('switch','--orphan','initial-remote')
+    (repo/'remote.txt').write_text('remote initialization');git('add','remote.txt');git('commit','--no-verify','-m','remote initial')
+    git('switch','main');git('merge','--allow-unrelated-histories','--no-ff','--no-commit','initial-remote');git('commit','-m','merge remote')
+    assert git('show','HEAD:VERSION')=='1.0.'+git('rev-list','--count','HEAD')
     print('Versao automatica: dois commits distintos, VERSION incluido e repositorio limpo: OK')
