@@ -1,4 +1,8 @@
-# Coletor de Energia — PHP / CodeIgniter / MySQL
+# PY9MT Energia
+
+Monitoramento de consumo e injeção de energia. Projeto PHP / CodeIgniter / MySQL.
+
+Repositório: https://github.com/claudioguolo/on-grid-monitor
 
 Versão `1.0.0-php`. Migração do coletor Python: CodeIgniter **4.7.5**, PHP **8.3** no Docker (mínimo **8.2**), MySQL **8.0+** (8.4 no Docker). Compatível com hospedagem PHP compartilhada que ofereça `intl`, `mbstring`, `mysqli`, HTTPS e rewrite para `public/index.php`.
 

@@ -2,6 +2,8 @@
 
 ## Alteracoes posteriores a 1.0.0-php
 
+- Nome oficial PY9MT Energia aplicado ao painel e documentacao; repositorio on-grid-monitor.
+
 - Versao automatica por commit, identificacao discreta no painel e pipeline GitHub para branch Hostinger com dependencias prontas.
 - Configuracoes e writable de producao podem ficar em energia_runtime, fora da pasta de deploy.
 

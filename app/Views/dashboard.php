@@ -3,7 +3,7 @@
 <html lang="pt-BR">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Coletor de energia</title>
+<title>PY9MT Energia</title>
 <style>
 body{font:16px system-ui;background:#0c1726;color:#e8eff9;max-width:1100px;margin:auto;padding:32px}h1{margin-bottom:8px}p{color:#b9c8da;line-height:1.6}.cards{display:flex;gap:16px;flex-wrap:wrap}.card,article{background:#17263a;border:1px solid #31435c;border-radius:12px;padding:22px;margin:16px 0}.card{flex:1;min-width:180px}.value{font-size:26px;font-weight:650;margin-top:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;background:#0c1726;padding:16px;border-radius:8px}summary{cursor:pointer;padding:12px 0}small{color:#b9c8da}#error{color:#ffb9a8}a{color:#8dd9ff}
 
@@ -20,10 +20,10 @@ body{font:16px system-ui;background:#0c1726;color:#e8eff9;max-width:1100px;margi
 .energy-scroll{max-width:100%;overflow-x:auto}.energy-summary{width:100%;min-width:560px;border-collapse:collapse}.energy-summary th,.energy-summary td{text-align:right;padding:16px 12px;border-bottom:1px solid #29394f;font-variant-numeric:tabular-nums}.energy-summary th:first-child,.energy-summary td:first-child{text-align:left;width:34%;padding-left:0}.energy-summary td:not(:first-child){font-size:clamp(16px,1.6vw,23px);white-space:nowrap}.energy-summary .coverage{margin-top:5px;font-size:11px}.energy-summary th{font-weight:600}
 .release-badge{float:right;margin:0 0 12px 16px;padding:5px 9px;border:1px solid #29394f;border-radius:6px;color:#9aacc1;font:12px ui-monospace,monospace;letter-spacing:.3px}
 </style>
-<aside class="sidebar" aria-label="Identificação da aplicação"><span class="sidebar-brand">ENERGIA / LOCAL</span><small>Monitor bifásico<br>IE Tecnologia · SM-3W Lite</small></aside>
+<aside class="sidebar" aria-label="Identificação da aplicação"><span class="sidebar-brand">PY9MT Energia</span><small>Monitor bifásico<br>IE Tecnologia · SM-3W Lite</small></aside>
 <main class="dashboard">
 <div class="release-badge" title="Versão instalada da aplicação">v<?= esc(trim(file_get_contents(ROOTPATH . 'VERSION'))) ?></div>
-<p><a href="<?= esc($appPath . '/history') ?>">Importar histórico TXT</a></p><div class="eyebrow">Monitoramento de energia · rede local</div><h1>Visão geral da instalação</h1>
+<p><a href="<?= esc($appPath . '/history') ?>">Importar histórico TXT</a></p><div class="eyebrow">Monitoramento de energia · rede local</div><h1>PY9MT Energia</h1>
 <p>IE Tecnologia · SM-3W Lite · instalação com duas fases</p>
 <div class="cards">
 <div class="card">Conexão<div class="value" id="status">Carregando…</div></div>
