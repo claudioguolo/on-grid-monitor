@@ -107,3 +107,11 @@ O pacote manual continua disponível em `dist/`. Ele pode ser instalado sem GitH
 ## Ponte Orange Pi HTTP → HTTPS
 
 O componente [bridge/](bridge/README.md) recebe os envios locais em HTTP, guarda em SQLite e encaminha ao endpoint HTTPS `/api/energia/bridge`. O receptor reconhece reenvios, preservando os horarios e corpos originais. O componente e instalado separadamente da aplicacao web e nao depende do MySQL local.
+
+## Transferir o historico local para a nuvem
+
+`tools/export_mysql.php` exporta uma leitura consistente do MySQL em NDJSON, preservando corpo binario em base64, JSON interpretado original, horarios UTC e registros IMPORT dos TXT. Execute pela CLI no conteiner PHP, com suas variaveis DB_HOST/DB_NAME/DB_USER/DB_PASSWORD configuradas. Faca backup SQL antes de exportar.
+
+O comando `tools/sync_history.py arquivo.ndjson --url https://energia.py9mt.qsl.br/api/energia/archive --dataset py9mt-pc-mysql-v1 --report relatorio.json` usa ONLINE_TOKEN no ambiente. Nao coloque o token no comando, na URL nem no Git. Envia lotes limitados e valida o SHA-256 de cada registro confirmado pelo servidor. Preserve o mesmo dataset e IDs de origem ao repetir: reenvios sao ignorados, conteudos divergentes com a mesma identidade sao rejeitados. O banco online nao e apagado nem substituido; a ponte continua recebendo novas amostras. A identidade protege contra reimportacoes do mesmo historico, nao compara valores eletricos para deduplicar amostras distintas.
+
+O endpoint aceita somente POST HTTPS autenticado, ate 100 registros e 1 MiB por lote. Cada lote e transacional. Erros interrompem a transferencia; uma nova execucao pode reenviar desde o inicio sem duplicar os registros ja confirmados. Arquivos e relatorios ficam em backups/, fora do Git. Valores de TXT ja convertidos no banco nao sao divididos por 100 novamente.
