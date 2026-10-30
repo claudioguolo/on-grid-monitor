@@ -52,6 +52,7 @@ class ComposerStaticInit206d3bcd95e43324ff7cd4e22a988381
     public static $classMap = array (
         'App\\Commands\\ImportHistory' => __DIR__ . '/../..' . '/app/Commands/ImportHistory.php',
         'App\\Commands\\ImportPython' => __DIR__ . '/../..' . '/app/Commands/ImportPython.php',
+        'App\\Controllers\\Auth' => __DIR__ . '/../..' . '/app/Controllers/Auth.php',
         'App\\Controllers\\BaseController' => __DIR__ . '/../..' . '/app/Controllers/BaseController.php',
         'App\\Controllers\\Energy' => __DIR__ . '/../..' . '/app/Controllers/Energy.php',
         'App\\Controllers\\Home' => __DIR__ . '/../..' . '/app/Controllers/Home.php',
@@ -60,6 +61,7 @@ class ComposerStaticInit206d3bcd95e43324ff7cd4e22a988381
         'App\\Libraries\\BridgeEnvelope' => __DIR__ . '/../..' . '/app/Libraries/BridgeEnvelope.php',
         'App\\Libraries\\History' => __DIR__ . '/../..' . '/app/Libraries/History.php',
         'App\\Libraries\\Measurements' => __DIR__ . '/../..' . '/app/Libraries/Measurements.php',
+        'App\\Libraries\\PanelAuth' => __DIR__ . '/../..' . '/app/Libraries/PanelAuth.php',
         'App\\Libraries\\Parameters' => __DIR__ . '/../..' . '/app/Libraries/Parameters.php',
         'CodeIgniter\\API\\ApiException' => __DIR__ . '/..' . '/codeigniter4/framework/system/API/ApiException.php',
         'CodeIgniter\\API\\BaseTransformer' => __DIR__ . '/..' . '/codeigniter4/framework/system/API/BaseTransformer.php',

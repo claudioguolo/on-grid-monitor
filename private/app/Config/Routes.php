@@ -17,3 +17,7 @@ $routes->post('history', 'Energy::importHistory', ['filter'=>'csrf']);
 $routes->post('api/energia/bridge', 'Energy::receiveBridge');
 
 $routes->post('api/energia/archive', 'Energy::receiveArchive');
+
+$routes->get('login', 'Auth::login');
+$routes->post('login', 'Auth::authenticate', ['filter'=>'csrf']);
+$routes->post('logout', 'Auth::logout', ['filter'=>'csrf']);

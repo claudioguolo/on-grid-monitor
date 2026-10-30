@@ -8,6 +8,7 @@ $baseDir = dirname($vendorDir);
 return array(
     'App\\Commands\\ImportHistory' => $baseDir . '/app/Commands/ImportHistory.php',
     'App\\Commands\\ImportPython' => $baseDir . '/app/Commands/ImportPython.php',
+    'App\\Controllers\\Auth' => $baseDir . '/app/Controllers/Auth.php',
     'App\\Controllers\\BaseController' => $baseDir . '/app/Controllers/BaseController.php',
     'App\\Controllers\\Energy' => $baseDir . '/app/Controllers/Energy.php',
     'App\\Controllers\\Home' => $baseDir . '/app/Controllers/Home.php',
@@ -16,6 +17,7 @@ return array(
     'App\\Libraries\\BridgeEnvelope' => $baseDir . '/app/Libraries/BridgeEnvelope.php',
     'App\\Libraries\\History' => $baseDir . '/app/Libraries/History.php',
     'App\\Libraries\\Measurements' => $baseDir . '/app/Libraries/Measurements.php',
+    'App\\Libraries\\PanelAuth' => $baseDir . '/app/Libraries/PanelAuth.php',
     'App\\Libraries\\Parameters' => $baseDir . '/app/Libraries/Parameters.php',
     'CodeIgniter\\API\\ApiException' => $vendorDir . '/codeigniter4/framework/system/API/ApiException.php',
     'CodeIgniter\\API\\BaseTransformer' => $vendorDir . '/codeigniter4/framework/system/API/BaseTransformer.php',
