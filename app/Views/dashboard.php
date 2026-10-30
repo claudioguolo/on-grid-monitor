@@ -1,3 +1,4 @@
+<?php $appPath = rtrim((string) parse_url(base_url(), PHP_URL_PATH), '/'); ?>
 <!doctype html>
 <html lang="pt-BR">
 <meta charset="utf-8">
@@ -20,7 +21,7 @@ body{font:16px system-ui;background:#0c1726;color:#e8eff9;max-width:1100px;margi
 </style>
 <aside class="sidebar" aria-label="Identificação da aplicação"><span class="sidebar-brand">ENERGIA / LOCAL</span><small>Monitor bifásico<br>IE Tecnologia · SM-3W Lite</small></aside>
 <main class="dashboard">
-<p><a href="<?= esc(base_url('history')) ?>">Importar histórico TXT</a></p><div class="eyebrow">Monitoramento de energia · rede local</div><h1>Visão geral da instalação</h1>
+<p><a href="<?= esc($appPath . '/history') ?>">Importar histórico TXT</a></p><div class="eyebrow">Monitoramento de energia · rede local</div><h1>Visão geral da instalação</h1>
 <p>IE Tecnologia · SM-3W Lite · instalação com duas fases · <span id="version"></span></p>
 <div class="cards">
 <div class="card">Conexão<div class="value" id="status">Carregando…</div></div>
@@ -64,7 +65,7 @@ body{font:16px system-ui;background:#0c1726;color:#e8eff9;max-width:1100px;margi
 </section>
 </main>
 <script>
-const API_PREFIX = <?= json_encode(rtrim(base_url(), '/'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+const API_PREFIX = <?= json_encode($appPath, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 let settings;
 const el=id=>document.getElementById(id);
 const fmt=v=>v.toLocaleString('pt-BR',{maximumFractionDigits:2});
