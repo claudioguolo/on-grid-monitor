@@ -2,6 +2,8 @@
 
 ## Alteracoes posteriores a 1.0.0-php
 
+- Migration inicial autocontida com Database Forge, indices e preservacao de tabelas ja importadas; instrucoes de instalacao por Spark.
+
 - APIs, links e formulario usam o mesmo endereco acessado no navegador, funcionando por IP e localhost e preservando instalacoes em subpastas.
 
 - Quadro unico Geracao/Consumo com colunas Consumida, Gerada (injetada na rede) e Total, mantendo cores e cobertura por periodo.

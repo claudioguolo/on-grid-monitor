@@ -60,3 +60,20 @@ docker compose run --rm --no-deps -v "$PWD/tests:/var/www/html/tests:ro" app php
 Os testes HTTP de `tests/http_check.php` destinam-se exclusivamente a um banco isolado e credenciais fictícias de teste, pois inserem amostras. Não os execute contra produção. O volume `mysql_data` é persistente; `docker compose down -v` o apaga. Para backup, use phpMyAdmin ou `mysqldump --single-transaction --no-tablespaces`. Backups, `.env`, dados pessoais e dependências não são versionados.
 
 Consumo/injeção instantâneos usam o saldo A+B. Energia acumulada usa diferenças dos contadores por fase e pode diferir do critério de compensação da concessionária. A cobertura incompleta e quedas de contadores são sinalizadas. A média técnica é amostral, não ponderada pelo tempo.
+
+## Criar tabelas com migration
+
+Com o banco vazio já criado no hPanel e as credenciais configuradas no `.env`, execute no diretório privado do projeto (onde está `spark`):
+
+```sh
+php spark migrate --all
+php spark migrate:status
+```
+
+No Docker local, use `docker compose exec -T app php spark migrate --all`.
+
+A migration `2026-10-30-000001_CreateReadings` cria `readings`, chave primária, índice cronológico e chave única de importação diretamente pelo Database Forge do CodeIgniter, sem depender do arquivo SQL. O framework cria a tabela `migrations` para controlar o que já foi executado. Uma segunda execução não recria nem apaga tabelas. Uma tabela `readings` existente (por importação SQL) é preservada; a migration não corrige automaticamente uma estrutura externa incompatível.
+
+A migration cria as tabelas **dentro do banco existente**; não cria o banco nem o usuário MySQL. Abrir o painel não executa migrations automaticamente. Se o plano não tiver SSH/terminal, use a importação de `database/schema.sql` pelo phpMyAdmin. Não há endpoint web para alterar o esquema.
+
+O comando de rollback é destrutivo: o método `down()` remove `readings` e suas medições. Faça backup antes de qualquer rollback; ele não é necessário na instalação normal.
