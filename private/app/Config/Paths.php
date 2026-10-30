@@ -90,7 +90,8 @@ class Paths
     public function __construct()
     {
         // Optional private runtime outside the directory managed by Git deploy.
-        $runtime = dirname(__DIR__, 3) . '/energia_runtime';
+        $levels = basename(dirname(__DIR__, 2)) === 'private' ? 5 : 3;
+        $runtime = dirname(__DIR__, $levels) . '/energia_runtime';
         if (is_file($runtime . '/.env')) {
             $this->envDirectory = $runtime . '/';
             $this->writableDirectory = $runtime . '/writable';
