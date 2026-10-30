@@ -1,0 +1,8 @@
+{
+  "timezone": "America/Cuiaba",
+  "stale_seconds": 180,
+  "max_payload_bytes": 262144,
+  "history_limit": 30000,
+  "default_chart_hours": 24,
+  "refresh_seconds": 10
+}
