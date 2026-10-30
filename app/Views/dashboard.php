@@ -36,7 +36,7 @@ body{font:16px system-ui;background:#0c1726;color:#e8eff9;max-width:1100px;margi
 <article class="phase b"><h2>Fase B</h2><div class="phase-values"><div><small>Tensão</small><strong id="voltage-b">—</strong><meter id="meter-b" min="0" max="260" value="0" aria-label="Tensão da fase B"></meter></div><div><small>Corrente</small><strong id="current-b">—</strong></div><div><small>Potência ativa</small><strong id="power-b">—</strong></div><div><small>Fator de potência</small><strong id="pf-b">—</strong></div></div></article>
 </div>
 <div class="cards"><div class="card">Saldo total A + B<div class="value" id="net">—</div></div><div class="card">Frequência<div class="value" id="frequency">—</div></div><div class="card">Circuito<div class="value">Bifásico</div><small>Fase C desconectada</small></div></div>
-<div class="energy-grid"><article><h2 class="consumed">Energia consumida da rede</h2><table class="energy-table" aria-label="Energia consumida"><tbody id="energy-consumption"></tbody></table></article><article class="energy-balance"><h2>Saldo de energia</h2><small>Consumo − injeção · positivo: consumo líquido; negativo: injeção líquida.</small><table class="energy-table" aria-label="Saldo de energia"><tbody id="energy-balance"></tbody></table></article><article><h2 class="injected">Energia injetada na rede</h2><table class="energy-table" aria-label="Energia injetada"><tbody id="energy-injection"></tbody></table></article></div>
+<div class="energy-grid"><article><h2 class="consumed">Energia consumida da rede</h2><table class="energy-table" aria-label="Energia consumida"><tbody id="energy-consumption"></tbody></table></article><article class="energy-balance"><h2>Saldo de energia</h2><small>Injeção − consumo · positivo: injeção líquida; negativo: consumo líquido.</small><table class="energy-table" aria-label="Saldo de energia"><tbody id="energy-balance"></tbody></table></article><article><h2 class="injected">Energia injetada na rede</h2><table class="energy-table" aria-label="Energia injetada"><tbody id="energy-injection"></tbody></table></article></div>
 <p class="footer-note">Energia em kWh: soma das variações dos contadores das fases A e B, dentro de cada período. Totais parciais consideram apenas o histórico disponível. Calendário: <span id="timezone">—</span>, semana iniciando na segunda-feira. Injeção é o excedente enviado à rede, não a geração solar total.</p>
 <article>
 <label for="period">Período: </label><select id="period"><option value="1">Última hora</option><option value="6">Últimas 6 horas</option><option value="24" selected>Últimas 24 horas</option><option value="168">Últimos 7 dias</option></select>
@@ -84,9 +84,9 @@ async function refreshEnergy(){try{
   const note=document.createElement('small');note.className='coverage';
   if(item.from&&item.to){const options={timeZone:settings.timezone,day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'};note.textContent=(item.partial?'Parcial · ':'')+new Date(item.from).toLocaleString('pt-BR',options)+' a '+new Date(item.to).toLocaleString('pt-BR',options)+(item.resets?' · reinício de contador detectado':'');}else note.textContent='Sem histórico neste período';
   name.append(note);
-  const amount=type==='balance'?(item.consumption===null||item.injection===null?null:Math.round((item.consumption-item.injection)*1e6)/1e6):item[type];
+  const amount=type==='balance'?(item.consumption===null||item.injection===null?null:Math.round((item.injection-item.consumption)*1e6)/1e6):item[type];
   value.textContent=amount===null?'—':amount.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:3,signDisplay:type==='balance'?'exceptZero':'auto'})+' kWh';
-  value.className=type==='balance'?(amount>0?'consumed':amount<0?'injected':''):type==='consumption'?'consumed':'injected';
+  value.className=type==='balance'?(amount>0?'injected':amount<0?'consumed':''):type==='consumption'?'consumed':'injected';
   row.append(name,value);root.append(row);
  }}
  }catch(e){for(const type of ['consumption','balance','injection'])el('energy-'+type).textContent='Não foi possível atualizar: '+e.message;}}
