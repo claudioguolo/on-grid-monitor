@@ -27,6 +27,7 @@ jobs:
       - run: python3 tests/bootstrap_check.py
       - run: docker compose cp app:/var/www/html/vendor ./vendor
       - run: python3 tools/package_hostinger.py
+      - run: python3 tests/publish_check.py
       - uses: actions/upload-artifact@v4
         with:
           name: hostinger-package

@@ -36,9 +36,13 @@ with ZipFile(package) as archive:
             archive.extractall(work)
             (work / 'BUILD.json').write_text(__import__('json').dumps({'version':version,'commit':source},indent=2)+'\n')
             git('add', '--force', '--all', cwd=work)
-            git('-c','core.hooksPath=/dev/null','-c','user.name=github-actions[bot]','-c','user.email=41898282+github-actions[bot]@users.noreply.github.com',
-                'commit','-m',f'deploy: v{version} ({source[:7]})',cwd=work)
-            git('push', args.remote, 'HEAD:refs/heads/hostinger', cwd=work)
+            changed = subprocess.run(['git','diff','--cached','--quiet'],cwd=work).returncode != 0
+            if changed:
+                git('-c','core.hooksPath=/dev/null','-c','user.name=github-actions[bot]','-c','user.email=41898282+github-actions[bot]@users.noreply.github.com',
+                    'commit','-m',f'deploy: v{version} ({source[:7]})',cwd=work)
+                git('push', args.remote, 'HEAD:refs/heads/hostinger', cwd=work)
+            else:
+                print('Pacote ja publicado; nenhuma alteracao.')
         finally:
             git('worktree','remove','--force',str(work))
             if temporary_branch:
