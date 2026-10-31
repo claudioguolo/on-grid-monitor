@@ -55,14 +55,14 @@ body{font:16px system-ui;background:#0c1726;color:#e8eff9;max-width:1100px;margi
 <h2>Potência por fase</h2><p><span style="color:#8bbaff">● Fase A</span> · <span style="color:#d4a5ff">● Fase B</span> · Positivo: consumo; negativo: injeção. Fase C desconectada.</p>
 <div id="phase-chart"></div>
 <p id="chart-info" role="status"></p>
-<small>Os gráficos mostram potência instantânea, não energia acumulada em kWh nem geração solar total. Intervalos sem envio por mais de 3 minutos aparecem como interrupções. Passe o ponteiro nos pontos para ver valores e horário.</small>
+<small>Os gráficos mostram potência instantânea, não energia acumulada em kWh nem geração solar total. Intervalos sem envio por mais de 3 minutos aparecem como interrupções.</small>
 </article>
 <details><summary>Inspecionar últimos envios recebidos</summary><h2>Últimos envios</h2><p>Atualização automática a cada 10 segundos. Histórico completo preservado no banco; esta tela mostra até 100 envios.</p>
 <p id="error" role="status"></p><div id="readings"></div></details>
 </section>
 <section id="technical" role="tabpanel" aria-labelledby="technical-tab" hidden>
 <div class="section-head"><h2>Análise técnica · fases A e B</h2><div><label for="technical-period">Período: </label><select id="technical-period"><option value="1">Última hora</option><option value="6">Últimas 6 horas</option><option value="24" selected>Últimas 24 horas</option><option value="168">Últimos 7 dias</option></select></div></div>
-<p>Valores enviados pelo monitor, sem conversão de escala. Fase C desconectada. Passe o ponteiro nos pontos para consultar as medições.</p>
+<p>Valores enviados pelo monitor, sem conversão de escala. Fase C desconectada.</p>
 <p id="technical-info" role="status">Aguardando carregamento.</p>
 <div id="technical-grid" class="technical-grid"></div>
 <p class="footer-note">Mínimo, máximo e média amostral calculados sobre as medições válidas do período exibido. A média não é ponderada pelo tempo. Dados ausentes e interrupções de comunicação deixam lacunas nos gráficos. Potência ativa negativa indica injeção na rede.</p>
@@ -116,7 +116,7 @@ function chart(id,points,series,unit="W",label="Potência"){
  svg.append(svgNode('line',{x1:l,x2:w-r,y1:y(0),y2:y(0),stroke:'#8396ad'}));
  for(let i=0;i<=4;i++){const time=minT+(maxT-minT)*i/4;svg.append(svgNode('text',{x:x(time),y:h-18,fill:'#b9c8da','font-size':12,'text-anchor':'middle'},new Date(time).toLocaleString('pt-BR',{timeZone:settings.timezone,day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})));}
  for(const s of series){let d='',previous=null;points.forEach((p,i)=>{if(!Number.isFinite(p[s.key])){previous=null;return;}d+=(previous===null||times[i]-previous>settings.stale_seconds*1000?'M':'L')+x(times[i])+','+y(p[s.key])+' ';previous=times[i];});svg.append(svgNode('path',{d,fill:'none',stroke:s.color,'stroke-width':2}));
- for(let i=0;i<points.length;i++){const p=points[i];if(!Number.isFinite(p[s.key]))continue;const dot=svgNode('circle',{cx:x(times[i]),cy:y(p[s.key]),r:3,fill:s.color});dot.append(svgNode('title',{},`${new Date(p.time).toLocaleString('pt-BR')} · ${s.name}: ${fmt(p[s.key])} ${unit}`));svg.append(dot);}}
+ }
  root.append(svg);
 }
 const technicalMetrics=[
