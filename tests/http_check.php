@@ -13,6 +13,7 @@ function request($path,$method='GET',$body='',$headers=[]){
 }
 $auth='';
 check(request('/api/readings')[0]===401,'Painel deve exigir autenticacao');
+check(request('/api/daily')[0]===401,'Comparativo diario exige autenticacao');
 check(request('/')[0]===302,'Painel redireciona ao login sem janela Basic');
 [$status,$page]=request('/login');check($status===200&&str_contains($page,'PY9MT'),'Tela de login');
 preg_match('/name="([^\"]+)" value="([^\"]+)"/',$page,$loginCsrf);
@@ -24,6 +25,7 @@ $loginBody=http_build_query([$loginCsrf[1]=>$loginCsrf[2],'username'=>'test','pa
 [$loginStatus,$loginResult]=request('/login','POST',$loginBody,['Content-Type: application/x-www-form-urlencoded']);
 check(in_array($loginStatus,[302,303],true),'Login por sessao: HTTP '.$loginStatus);
 check(request('/api/settings')[0]===200,'API autenticada por sessao');
+[$dailyStatus,$dailyBody]=request('/api/daily');$dailyData=json_decode($dailyBody,true);check($dailyStatus===200&&count($dailyData['days'])===7,'Comparativo diario autenticado com sete datas');
 check(request('/api/energia/medidor','POST','{}',['Content-Type: application/json'])[0]===401,'Medidor deve exigir token');
 $path='/api/energia/medidor?token=test-only-token';
 $body='{"id":"1","pa":"100","pb":"-300","qa":"-20","freq":"59.97"}';

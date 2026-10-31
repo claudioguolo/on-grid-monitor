@@ -26,6 +26,7 @@ $weak=$person;$weak['username']='weak-user';$weak['password']='123';check(postFo
 check(in_array(login($viewer,'viewer01',$person['password']),[302,303]),'Consulta consegue entrar');
 foreach(['/admin','/admin/users','/admin/settings','/admin/audit','/history'] as $path)check(request($viewer,$path)[0]===403,'Consulta nao acessa '.$path);
 check(request($viewer,'/api/readings')[0]===200,'Consulta le medicoes');
+check(request($viewer,'/api/daily')[0]===200,'Consulta acessa comparativo diario');
 $page=request($viewer,'/')[1];check(!str_contains($page,'>Administração</a>'),'Menu administrativo oculto');
 check(request($viewer,'/admin/users','POST',csrf($page)+$person)[0]===403,'Consulta nao grava via POST direto');
 $disabled=$person;$disabled['active']='';$disabled['password']='';

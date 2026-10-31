@@ -10,6 +10,7 @@ $routes->get('api/readings', 'Energy::readings');
 $routes->get('api/power', 'Energy::power');
 $routes->get('api/technical', 'Energy::technical');
 $routes->get('api/summary', 'Energy::summary');
+$routes->get('api/daily', 'Energy::daily');
 
 $routes->get('history', 'Energy::historyForm');
 $routes->post('history', 'Energy::importHistory', ['filter'=>'csrf']);

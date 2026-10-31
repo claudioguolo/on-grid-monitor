@@ -60,4 +60,42 @@ final class Measurements
         }
         return $states;
     }
+
+    public static function daily(iterable $rows, array $config, ?\DateTimeImmutable $now=null): array
+    {
+        $zone=new \DateTimeZone($config['timezone']);$now=($now??new \DateTimeImmutable())->setTimezone($zone);
+        $today=$now->setTime(0,0);$periods=[];$states=[];
+        for($offset=6;$offset>=0;$offset--){
+            $start=$today->modify('-'.$offset.' days');$key=$start->format('Y-m-d');
+            $periods[$key]=[$start,$offset===0?$now:$start->modify('+1 day')];
+            $states[$key]=['date'=>$key,'time'=>$start->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d\TH:i:sP'),
+                'consumption'=>0.0,'injection'=>0.0,'balance'=>null,'samples'=>0,'resets'=>0,'from'=>null,'to'=>null,'in_progress'=>$offset===0,'last'=>null];
+        }
+        foreach($rows as $row){
+            $payload=json_decode($row['parsed'],true)['payload']??null;if(!is_array($payload))continue;
+            $values=[];foreach(['epa_c','epb_c','epa_g','epb_g'] as $key){$value=self::number($payload[$key]??null);if($value===null||$value<0)continue 2;$values[]=$value;}
+            $stamp=new \DateTimeImmutable($row['received_at']);
+            foreach($periods as $key=>[$start,$end]){
+                // A midnight sample is the closing boundary of one day and baseline of the next.
+                if($stamp<$start||$stamp>$end)continue;
+                $state=&$states[$key];
+                if($state['last']!==null){
+                    $delta=array_map(fn($after,$before)=>$after-$before,$values,$state['last']);
+                    if(min($delta)<-0.000001)$state['resets']++;
+                    else{$state['consumption']+=$delta[0]+$delta[1];$state['injection']+=$delta[2]+$delta[3];}
+                }
+                $state['from']??=$row['received_at'];$state['to']=$row['received_at'];$state['samples']++;$state['last']=$values;unset($state);
+            }
+        }
+        foreach($states as $key=>&$state){
+            unset($state['last']);$enough=$state['samples']>=2;
+            $state['consumption']=$enough?round($state['consumption'],6):null;
+            $state['injection']=$enough?round($state['injection'],6):null;
+            $state['balance']=$enough?round($state['injection']-$state['consumption'],6):null;
+            $state['partial']=!$enough||$state['resets']>0||
+                (new \DateTimeImmutable($state['from']))->getTimestamp()-$periods[$key][0]->getTimestamp()>120||
+                $periods[$key][1]->getTimestamp()-(new \DateTimeImmutable($state['to']))->getTimestamp()>$config['stale_seconds'];
+        }
+        return array_values($states);
+    }
 }
