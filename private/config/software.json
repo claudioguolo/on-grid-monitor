@@ -8,5 +8,6 @@
   "active_phases": [
     "a",
     "b"
-  ]
+  ],
+  "power_unit": "W"
 }

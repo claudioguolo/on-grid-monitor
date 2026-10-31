@@ -55,11 +55,12 @@ class Admin extends BaseController
             $zone=$this->request->getPost('timezone');if(!is_string($zone))throw new \InvalidArgumentException('Fuso inválido.');$settings['timezone']=$zone;
             foreach(['stale_seconds','max_payload_bytes','history_limit','default_chart_hours','refresh_seconds'] as $key){$value=$this->request->getPost($key);if(!is_string($value)||!ctype_digit($value))throw new \InvalidArgumentException('Informe números inteiros válidos.');$settings[$key]=(int)$value;}
             $settings['active_phases']=$this->request->getPost('active_phases')??[];
+            $settings['power_unit']=$this->request->getPost('power_unit')??'W';
             AdminStore::saveSettings((int)PanelAuth::current()['id'],$settings);
             return redirect()->to(PanelAuth::appPath().'/admin/settings')->with('success','Configurações salvas.')->withCookies();
         }catch(\Exception $e){
             if($e instanceof \CodeIgniter\Database\Exceptions\DatabaseException)throw $e;
-            $this->response->setStatusCode(422);return $this->page(['tab'=>'settings','settings'=>Parameters::load(),'error'=>'Configurações inválidas. Selecione ao menos uma fase (A, B ou C) e confira os limites e o fuso horário.']);
+            $this->response->setStatusCode(422);return $this->page(['tab'=>'settings','settings'=>Parameters::load(),'error'=>'Configurações inválidas. Selecione ao menos uma fase (A, B ou C) e confira a unidade de potência, os limites e o fuso horário.']);
         }
     }
     public function audit()
