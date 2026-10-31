@@ -139,7 +139,7 @@ class Energy extends BaseController
         $since=(new \DateTimeImmutable('now',new \DateTimeZone('UTC')))->modify('-'.$hours.' hours')->format('Y-m-d\TH:i:s.uP');
         $rows=db_connect()->table('readings')->select('received_at,parsed')->where('received_at >=',$since)->orderBy('received_at','DESC')->orderBy('id','DESC')->limit($c['history_limit']+1)->get()->getResultArray();
         $truncated=count($rows)>$c['history_limit']; $points=[];
-        foreach (array_reverse(array_slice($rows,0,$c['history_limit'])) as $row) { $point=Measurements::point($row,$technical); if ($point!==null) $points[]=$point; }
+        foreach (array_reverse(array_slice($rows,0,$c['history_limit'])) as $row) { $point=Measurements::point($row,$technical,$c['active_phases']); if ($point!==null) $points[]=$point; }
         return $this->json(['points'=>$points,'truncated'=>$truncated]);
     }
     public function power() { return $this->history(false); }

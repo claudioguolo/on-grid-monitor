@@ -44,6 +44,15 @@ $settings=json_decode(request($admin,'/api/settings')[1],true);unset($settings['
 $invalid=$settings;$invalid['refresh_seconds']=0;check(postForm($admin,'/admin/settings','/admin/settings',$invalid)===422,'Parametros invalidos rejeitados');
 $settings['refresh_seconds']=20;check(in_array(postForm($admin,'/admin/settings','/admin/settings',$settings),[302,303]),'Configuracoes gravadas');
 check(json_decode(request($viewer,'/api/settings')[1],true)['refresh_seconds']===20,'Configuracoes aplicadas no painel');
+foreach([['a'],['c'],['a','c'],['a','b','c']] as $phases){
+ $settings['active_phases']=$phases;
+ check(in_array(postForm($admin,'/admin/settings','/admin/settings',$settings),[302,303]),'Salvar fases');
+ check(json_decode(request($viewer,'/api/settings')[1],true)['active_phases']===$phases,'Fases persistidas e disponiveis a consulta');
+ $form=request($admin,'/admin/settings')[1];check(str_contains($form,'name="active_phases[]"'),'Formulario oferece fases');
+}
+$invalid=$settings;$invalid['active_phases']=[];check(postForm($admin,'/admin/settings','/admin/settings',$invalid)===422,'Selecao vazia rejeitada');
+$invalid['active_phases']=['d'];check(postForm($admin,'/admin/settings','/admin/settings',$invalid)===422,'Fase desconhecida rejeitada');
+$settings['active_phases']=['a','b'];check(in_array(postForm($admin,'/admin/settings','/admin/settings',$settings),[302,303]),'Restaurar bifasico');
 $audit=request($admin,'/admin/audit')[1];check(str_contains($audit,'settings.update')&&str_contains($audit,'user.create'),'Auditoria registrada');
 check(!str_contains($audit,$person['password'])&&!str_contains($audit,'$2y$'),'Auditoria nao expoe senhas');
 $self['active']='1';$self['password']='new-admin-password-2026';

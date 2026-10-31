@@ -38,7 +38,7 @@ final class AdminStore
     }
     public static function saveSettings(int $actor,array $settings): void
     {
-        Parameters::validate($settings);$db=db_connect();$db->transException(true)->transBegin();
+        $settings=Parameters::validate($settings);$db=db_connect();$db->transException(true)->transBegin();
         try{
             self::authorize($db,$actor);$row=['id'=>1,'settings_json'=>json_encode($settings,JSON_THROW_ON_ERROR),'updated_at'=>gmdate('Y-m-d\TH:i:s+00:00')];
             if($db->table('system_settings')->where('id',1)->countAllResults())$db->table('system_settings')->where('id',1)->update($row);

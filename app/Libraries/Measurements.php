@@ -2,14 +2,29 @@
 namespace App\Libraries;
 final class Measurements
 {
-    public const TECHNICAL = ['pa','pb','qa','qb','sa','sb','uarms','ubrms','iarms','ibrms','pfa','pfb','freq'];
+    public static function technicalKeys(array $phases): array
+    {
+        $keys=['freq'];
+        foreach($phases as $phase)foreach(['p%s','q%s','s%s','u%srms','i%srms','pf%s'] as $format)$keys[]=sprintf($format,$phase);
+        return $keys;
+    }
+    private static function counters(array $payload,array $phases): ?array
+    {
+        $values=[];
+        foreach(['c','g'] as $kind)foreach($phases as $phase){
+            $value=self::number($payload['ep'.$phase.'_'.$kind]??null);
+            if($value===null||$value<0)return null;
+            $values[]=$value;
+        }
+        return $values;
+    }
     public static function number($value): ?float
     {
         if (!is_numeric($value)) return null;
         $number = (float)$value;
         return is_finite($number) ? $number : null;
     }
-    public static function point(array $row, bool $technical): ?array
+    public static function point(array $row, bool $technical, array $phases=['a','b']): ?array
     {
         $data = json_decode($row['parsed'],true);
         $p = $data['payload'] ?? null;
@@ -17,16 +32,18 @@ final class Measurements
         $out = ['time'=>$row['received_at']];
         if ($technical) {
             $valid = false;
-            foreach (self::TECHNICAL as $key) { $out[$key] = self::number($p[$key] ?? null); $valid = $valid || $out[$key] !== null; }
+            foreach (self::technicalKeys($phases) as $key) { $out[$key] = self::number($p[$key] ?? null); $valid = $valid || $out[$key] !== null; }
             return $valid ? $out : null;
         }
-        $a = self::number($p['pa'] ?? null); $b = self::number($p['pb'] ?? null);
-        if ($a === null || $b === null) return null;
-        $net=$a+$b;
-        return $out+['a'=>$a,'b'=>$b,'net'=>$net,'consumption'=>max($net,0),'injection'=>max(-$net,0)];
+        $values=[];
+        foreach($phases as $phase){$values[$phase]=self::number($p['p'.$phase]??null);if($values[$phase]===null)return null;}
+        $net=array_sum($values);
+        return $out+$values+['net'=>$net,'consumption'=>max($net,0),'injection'=>max(-$net,0)];
     }
+
     public static function summary(iterable $rows, array $config, ?\DateTimeImmutable $now=null): array
     {
+        $phases=$config['active_phases']??['a','b'];
         $zone=new \DateTimeZone($config['timezone']);
         $now=($now ?? new \DateTimeImmutable())->setTimezone($zone);
         $day=$now->setTime(0,0); $month=$day->modify('first day of this month');
@@ -37,8 +54,7 @@ final class Measurements
         foreach ($rows as $row) {
             $p=json_decode($row['parsed'],true)['payload'] ?? null;
             if (!is_array($p)) continue;
-            $values=[];
-            foreach (['epa_c','epb_c','epa_g','epb_g'] as $key) { $v=self::number($p[$key] ?? null); if ($v===null || $v<0) continue 2; $values[]=$v; }
+            $values=self::counters($p,$phases);if($values===null)continue;
             $stamp=new \DateTimeImmutable($row['received_at']);
             foreach ($periods as $name=>[$start,$end]) {
                 if ($stamp<$start || $stamp>$end || ($name==='previous_month' && $stamp==$end)) continue;
@@ -46,7 +62,7 @@ final class Measurements
                 if ($s['last']!==null) {
                     $delta=array_map(fn($a,$b)=>$a-$b,$values,$s['last']);
                     if (min($delta)<-0.000001) $s['resets']++;
-                    else { $s['consumption']+=$delta[0]+$delta[1]; $s['injection']+=$delta[2]+$delta[3]; }
+                    else { $s['consumption']+=array_sum(array_slice($delta,0,count($phases))); $s['injection']+=array_sum(array_slice($delta,count($phases))); }
                 }
                 $s['from'] ??= $row['received_at']; $s['to']=$row['received_at']; $s['samples']++; $s['last']=$values;
                 unset($s);
@@ -63,6 +79,7 @@ final class Measurements
 
     public static function daily(iterable $rows, array $config, ?\DateTimeImmutable $now=null): array
     {
+        $phases=$config['active_phases']??['a','b'];
         $zone=new \DateTimeZone($config['timezone']);$now=($now??new \DateTimeImmutable())->setTimezone($zone);
         $today=$now->setTime(0,0);$periods=[];$states=[];
         for($offset=6;$offset>=0;$offset--){
@@ -73,7 +90,7 @@ final class Measurements
         }
         foreach($rows as $row){
             $payload=json_decode($row['parsed'],true)['payload']??null;if(!is_array($payload))continue;
-            $values=[];foreach(['epa_c','epb_c','epa_g','epb_g'] as $key){$value=self::number($payload[$key]??null);if($value===null||$value<0)continue 2;$values[]=$value;}
+            $values=self::counters($payload,$phases);if($values===null)continue;
             $stamp=new \DateTimeImmutable($row['received_at']);
             foreach($periods as $key=>[$start,$end]){
                 // A midnight sample is the closing boundary of one day and baseline of the next.
@@ -82,7 +99,7 @@ final class Measurements
                 if($state['last']!==null){
                     $delta=array_map(fn($after,$before)=>$after-$before,$values,$state['last']);
                     if(min($delta)<-0.000001)$state['resets']++;
-                    else{$state['consumption']+=$delta[0]+$delta[1];$state['injection']+=$delta[2]+$delta[3];}
+                    else{$state['consumption']+=array_sum(array_slice($delta,0,count($phases)));$state['injection']+=array_sum(array_slice($delta,count($phases)));}
                 }
                 $state['from']??=$row['received_at'];$state['to']=$row['received_at'];$state['samples']++;$state['last']=$values;unset($state);
             }

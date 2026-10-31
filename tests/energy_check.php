@@ -42,3 +42,28 @@ check($daily[6]['consumption']===3.0&&$daily[6]['injection']===7.0&&$daily[6]['r
 $monthChange=M::daily([],Parameters::load(),new DateTimeImmutable('2026-11-03T16:00:00+00:00'));
 check($monthChange[0]['date']==='2026-10-28'&&$monthChange[6]['date']==='2026-11-03','Semana atravessa mes');
 echo "Comparativo diario: sete dias, fuso, fronteira meia-noite, reinicios, saldo e dados ausentes: OK\n";
+
+$defaults=Parameters::load();unset($defaults['active_phases']);
+check(Parameters::validate($defaults)['active_phases']===['a','b'],'Configuracoes antigas continuam bifasicas');
+foreach([[],['d'],['a','a'],['a',1],['a'=>true]] as $invalid){
+ try{Parameters::validate($defaults+['active_phases'=>$invalid]);throw new LogicException('Fases invalidas deveriam falhar');}catch(RuntimeException $e){}
+}
+$phasePayload=['pa'=>100,'pb'=>-300,'pc'=>50,'epa_c'=>10,'epb_c'=>20,'epc_c'=>30,'epa_g'=>40,'epb_g'=>50,'epc_g'=>60];
+foreach([['a'],['b'],['c'],['a','b'],['a','c'],['b','c'],['a','b','c']] as $phases){
+ $config=Parameters::validate($defaults+['active_phases'=>$phases]);
+ $row=['received_at'=>'2026-10-31T05:00:00+00:00','parsed'=>json_encode(['payload'=>$phasePayload])];
+ $point=M::point($row,false,$phases);$net=(float)array_sum(array_map(fn($p)=>$phasePayload['p'.$p],$phases));
+ check($point['net']===$net&&$point['injection']===max(-$net,0),'Potencia por selecao de fases');
+ $technical=M::point($row,true,$phases);
+ foreach(['a','b','c'] as $p)check(array_key_exists('p'.$p,$technical)===in_array($p,$phases,true),'Series tecnicas somente fases ativas');
+ $after=$phasePayload;foreach(['a'=>1,'b'=>2,'c'=>3] as $p=>$n){$after['ep'.$p.'_c']+=$n;$after['ep'.$p.'_g']+=$n*2;}
+ $rows=[$row,['received_at'=>'2026-10-31T06:00:00+00:00','parsed'=>json_encode(['payload'=>$after])]];
+ $expected=(float)array_sum(array_map(fn($p)=>['a'=>1,'b'=>2,'c'=>3][$p],$phases));
+ $summary=M::summary($rows,$config,new DateTimeImmutable('2026-10-31T07:00:00+00:00'));
+ $daily=M::daily($rows,$config,new DateTimeImmutable('2026-10-31T07:00:00+00:00'));
+ check($summary['today']['consumption']===$expected&&$summary['today']['injection']===$expected*2,'Resumo por fases');
+ check($daily[6]['consumption']===$expected&&$daily[6]['injection']===$expected*2&&$daily[6]['balance']===$expected,'Diario por fases');
+}
+$missing=['received_at'=>'2026-10-31T05:00:00+00:00','parsed'=>json_encode(['payload'=>['pc'=>10]])];
+check(M::point($missing,false,['c'])['net']===10.0&&M::point($missing,false,['a','c'])===null,'Fase ativa ausente nao vira zero');
+echo "Fases: sete combinacoes, compatibilidade, validacao, potencia, resumo, diario e dados ausentes: OK\n";
