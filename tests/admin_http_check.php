@@ -55,6 +55,8 @@ $invalid['active_phases']=['d'];check(postForm($admin,'/admin/settings','/admin/
 $settings['active_phases']=['a','b'];check(in_array(postForm($admin,'/admin/settings','/admin/settings',$settings),[302,303]),'Restaurar bifasico');
 foreach(['kW','W'] as $unit){$settings['power_unit']=$unit;check(in_array(postForm($admin,'/admin/settings','/admin/settings',$settings),[302,303]),'Salvar unidade');check(json_decode(request($viewer,'/api/settings')[1],true)['power_unit']===$unit,'Unidade persistida');}
 $invalid=$settings;$invalid['power_unit']='kWh';check(postForm($admin,'/admin/settings','/admin/settings',$invalid)===422,'Unidade invalida rejeitada');
+$settings['flow_gauge_limit_w']=5000;check(in_array(postForm($admin,'/admin/settings','/admin/settings',$settings),[302,303]),'Salvar escala fixa');check(json_decode(request($viewer,'/api/settings')[1],true)['flow_gauge_limit_w']===5000,'Escala fixa persistida');
+$invalid=$settings;$invalid['flow_gauge_limit_w']=0;check(postForm($admin,'/admin/settings','/admin/settings',$invalid)===422,'Escala zero rejeitada');
 $audit=request($admin,'/admin/audit')[1];check(str_contains($audit,'settings.update')&&str_contains($audit,'user.create'),'Auditoria registrada');
 check(!str_contains($audit,$person['password'])&&!str_contains($audit,'$2y$'),'Auditoria nao expoe senhas');
 $self['active']='1';$self['password']='new-admin-password-2026';

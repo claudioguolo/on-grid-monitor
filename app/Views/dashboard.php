@@ -25,26 +25,26 @@
 <div class="live-grid"><article class="phase" data-phase="a"><h2>Fase A</h2><div class="phase-body">
 <svg class="gauge" id="gauge-a" viewBox="0 0 180 115" role="meter" aria-label="Tensão da fase A" aria-valuemin="0" aria-valuemax="260" aria-valuetext="Sem medição recente">
 <path class="gauge-track" d="M20 85 A70 70 0 0 1 160 85"/><path class="gauge-fill" id="meter-a" d="M20 85 A70 70 0 0 1 160 85" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
-<text class="gauge-value" id="voltage-a" x="90" y="77">—</text><text class="gauge-label" x="90" y="95">Tensão</text><text class="gauge-label" x="20" y="110">0 V</text><text class="gauge-label" x="160" y="110">260 V</text></svg>
+<text class="gauge-value" id="voltage-a" x="90" y="77">—</text><text class="gauge-label" x="90" y="95">Tensão</text><text class="gauge-label" x="20" y="110">0,00 V</text><text class="gauge-label" x="160" y="110">260,00 V</text></svg>
 <div class="phase-values"><div><small>Corrente</small><strong id="current-a">—</strong></div><div><small>Potência ativa</small><strong id="power-a">—</strong></div><div><small>Fator de potência</small><strong id="pf-a">—</strong></div></div></div></article>
 <article class="phase b" data-phase="b"><h2>Fase B</h2><div class="phase-body">
 <svg class="gauge" id="gauge-b" viewBox="0 0 180 115" role="meter" aria-label="Tensão da fase B" aria-valuemin="0" aria-valuemax="260" aria-valuetext="Sem medição recente">
 <path class="gauge-track" d="M20 85 A70 70 0 0 1 160 85"/><path class="gauge-fill" id="meter-b" d="M20 85 A70 70 0 0 1 160 85" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
-<text class="gauge-value" id="voltage-b" x="90" y="77">—</text><text class="gauge-label" x="90" y="95">Tensão</text><text class="gauge-label" x="20" y="110">0 V</text><text class="gauge-label" x="160" y="110">260 V</text></svg>
+<text class="gauge-value" id="voltage-b" x="90" y="77">—</text><text class="gauge-label" x="90" y="95">Tensão</text><text class="gauge-label" x="20" y="110">0,00 V</text><text class="gauge-label" x="160" y="110">260,00 V</text></svg>
 <div class="phase-values"><div><small>Corrente</small><strong id="current-b">—</strong></div><div><small>Potência ativa</small><strong id="power-b">—</strong></div><div><small>Fator de potência</small><strong id="pf-b">—</strong></div></div></div></article>
 <article class="phase c" data-phase="c" hidden><h2>Fase C</h2><div class="phase-body">
 <svg class="gauge" id="gauge-c" viewBox="0 0 180 115" role="meter" aria-label="Tensão da fase C" aria-valuemin="0" aria-valuemax="260" aria-valuetext="Sem medição recente">
 <path class="gauge-track" d="M20 85 A70 70 0 0 1 160 85"/><path class="gauge-fill" id="meter-c" d="M20 85 A70 70 0 0 1 160 85" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
-<text class="gauge-value" id="voltage-c" x="90" y="77">—</text><text class="gauge-label" x="90" y="95">Tensão</text><text class="gauge-label" x="20" y="110">0 V</text><text class="gauge-label" x="160" y="110">260 V</text></svg>
+<text class="gauge-value" id="voltage-c" x="90" y="77">—</text><text class="gauge-label" x="90" y="95">Tensão</text><text class="gauge-label" x="20" y="110">0,00 V</text><text class="gauge-label" x="160" y="110">260,00 V</text></svg>
 <div class="phase-values"><div><small>Corrente</small><strong id="current-c">—</strong></div><div><small>Potência ativa</small><strong id="power-c">—</strong></div><div><small>Fator de potência</small><strong id="pf-c">—</strong></div></div></div></article>
 <article class="flow-card"><h2>Fluxo com a rede</h2><div class="phase-body">
 <svg class="gauge flow-gauge" id="gauge-net" viewBox="0 0 180 115" role="meter" aria-label="Potência líquida da rede" aria-valuemin="-1000" aria-valuemax="1000" aria-valuetext="Sem medição recente">
 <path d="M20 85 A70 70 0 0 1 90 15" class="flow-injection"/><path d="M90 15 A70 70 0 0 1 160 85" class="flow-consumption"/>
-<text class="gauge-label" x="90" y="7">0</text><path id="net-needle" d="M90 50 L90 22" stroke="#e8eff9" stroke-width="3" stroke-linecap="round" visibility="hidden"/>
+<text class="gauge-label" x="90" y="7">0,00</text><path id="net-needle" d="M90 50 L90 22" stroke="#e8eff9" stroke-width="3" stroke-linecap="round" visibility="hidden"/>
 <text class="gauge-value" id="net" x="90" y="78">—</text><text class="gauge-label" id="net-direction" x="90" y="94">Sem medição recente</text>
 <text class="gauge-label" id="net-min" x="24" y="110">−1 kW</text><text class="gauge-label" id="net-max" x="156" y="110">+1 kW</text></svg>
 <div class="phase-values"><div><small>Consumida da rede</small><strong class="consumed" id="consumption">—</strong></div><div><small>Injetada na rede</small><strong class="injected" id="injection">—</strong></div><div><small>Frequência</small><strong id="frequency">—</strong></div></div></div>
-<p class="flow-note">Potência líquida <span class="phase-list">A + B</span> · escala automática · verde: injeção; laranja: consumo.</p></article></div>
+<p class="flow-note">Potência líquida <span class="phase-list">A + B</span> · escala fixa · verde: injeção; laranja: consumo. <span id="gauge-limit-note" class="consumed"></span></p></article></div>
 <div class="overview-grid">
 <article><h2>Geração/Consumo</h2>
 <p class="footer-note">Gerada: energia injetada na rede. Total = gerada − consumida; positivo indica excedente injetado.</p>
@@ -95,9 +95,9 @@ function configurePhases(){
  buildTechnicalCards();
 }
 const el=id=>document.getElementById(id);
-const fmt=v=>v.toLocaleString('pt-BR',{maximumFractionDigits:2});
+const fmt=v=>(Math.round(v*100)/100||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 function formatPower(watts){
- return settings?.power_unit==='kW'?(watts/1000).toLocaleString('pt-BR',{maximumFractionDigits:3})+' kW':fmt(watts)+' W';
+ return settings?.power_unit==='kW'?fmt(watts/1000)+' kW':fmt(watts)+' W';
 }
 function updateLive(payload,recent){
  for(const phase of activePhases){
@@ -115,14 +115,15 @@ function updateLive(payload,recent){
  }
  const number=key=>payload?.[key]===undefined||payload?.[key]===null||payload?.[key]===''?NaN:Number(payload[key]);
  const powers=activePhases.map(phase=>number('p'+phase)),net=powers.every(Number.isFinite)?powers.reduce((sum,power)=>sum+power,0):NaN,freq=number('freq'),valid=recent&&Number.isFinite(net);
- const limit=Math.max(1000,Math.ceil(Math.abs(valid?net:0)/1000)*1000),gauge=el('gauge-net'),needle=el('net-needle');
+ const limit=settings?.flow_gauge_limit_w??1000,gauge=el('gauge-net'),needle=el('net-needle');
  el('net').textContent=valid?formatPower(net):'—';
  el('net-direction').textContent=valid?(net<0?'Injetando na rede':net>0?'Consumindo da rede':'Sem fluxo líquido'):'Sem medição recente';
  el('net').style.fill=valid?(net<0?'#60dfbe':net>0?'#ffbc65':'#e8eff9'):'#e8eff9';
- needle.setAttribute('visibility',valid?'visible':'hidden');needle.setAttribute('transform',`rotate(${valid?net/limit*90:0} 90 85)`);
+ needle.setAttribute('visibility',valid?'visible':'hidden');needle.setAttribute('transform',`rotate(${valid?Math.max(-1,Math.min(1,net/limit))*90:0} 90 85)`);
  gauge.setAttribute('aria-valuemin',-limit);gauge.setAttribute('aria-valuemax',limit);
  gauge.setAttribute('aria-valuetext',valid?formatPower(Math.abs(net))+' · '+el('net-direction').textContent:'Sem medição recente');
- if(valid)gauge.setAttribute('aria-valuenow',net);else gauge.removeAttribute('aria-valuenow');
+ el('gauge-limit-note').textContent=valid&&Math.abs(net)>limit?'Valor fora da escala.':'';
+ if(valid)gauge.setAttribute('aria-valuenow',Math.max(-limit,Math.min(limit,net)));else gauge.removeAttribute('aria-valuenow');
  el('net-min').textContent='−'+formatPower(limit);el('net-max').textContent='+'+formatPower(limit);
  el('consumption').textContent=valid?formatPower(Math.max(0,net)):'—';el('injection').textContent=valid?formatPower(Math.max(0,-net)):'—';
  el('frequency').textContent=recent&&Number.isFinite(freq)?fmt(freq)+' Hz':'—';
@@ -137,7 +138,7 @@ async function refreshEnergy(){try{
   name.append(note);row.append(name);
   for(const type of ['consumption','injection','balance']){const value=document.createElement('td');
   const amount=type==='balance'?(item.consumption===null||item.injection===null?null:Math.round((item.injection-item.consumption)*1e6)/1e6):item[type];
-  value.textContent=amount===null?'—':amount.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:3,signDisplay:type==='balance'?'exceptZero':'auto'})+' kWh';
+  value.textContent=amount===null?'—':amount.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2,signDisplay:type==='balance'?'exceptZero':'auto'})+' kWh';
   value.className=type==='balance'?(amount>0?'injected':amount<0?'consumed':''):type==='consumption'?'consumed':'injected';
   row.append(value);
   }root.append(row);
@@ -179,7 +180,7 @@ async function refreshDaily(){if(dailyBusy)return;dailyBusy=true;try{
  if(day.resets)coverage+=' · reinício de contador';
  if(day.from&&day.to)coverage+=' · '+new Date(day.from).toLocaleTimeString('pt-BR',{timeZone:data.timezone,hour:'2-digit',minute:'2-digit'})+'–'+new Date(day.to).toLocaleTimeString('pt-BR',{timeZone:data.timezone,hour:'2-digit',minute:'2-digit'});
  note.textContent=coverage;name.append(note);row.append(name);
- for(const key of ['consumption','injection','balance']){const cell=document.createElement('td'),value=day[key];cell.textContent=value===null?'—':value.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:3,signDisplay:key==='balance'?'exceptZero':'auto'})+' kWh';cell.className=key==='balance'?(value>0?'injected':value<0?'consumed':''):key==='consumption'?'consumed':'injected';row.append(cell);}root.append(row);}
+ for(const key of ['consumption','injection','balance']){const cell=document.createElement('td'),value=day[key];cell.textContent=value===null?'—':value.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2,signDisplay:key==='balance'?'exceptZero':'auto'})+' kWh';cell.className=key==='balance'?(value>0?'injected':value<0?'consumed':''):key==='consumption'?'consumed':'injected';row.append(cell);}root.append(row);}
  chart('daily-chart',data.days,[{key:'consumption',color:'#ffbc65',name:'Consumida'},{key:'injection',color:'#60dfbe',name:'Gerada / injetada'}],'kWh','Comparativo diário',36*3600000,true,'bars');
  el('daily-info').textContent='Atualizado em '+new Date().toLocaleTimeString('pt-BR',{timeZone:data.timezone})+'.';
  }catch(e){el('daily-info').textContent='Não foi possível atualizar o comparativo: '+e.message;}finally{dailyBusy=false;}}

@@ -73,3 +73,9 @@ check(Parameters::validate($legacy)['power_unit']==='W','Unidade antiga continua
 foreach(['W','kW'] as $unit)check(Parameters::validate(array_replace($legacy,['power_unit'=>$unit]))['power_unit']===$unit,'Unidade valida');
 foreach(['kWh','KW',[],123] as $unit){try{Parameters::validate(array_replace($legacy,['power_unit'=>$unit]));throw new LogicException('Unidade invalida deveria falhar');}catch(RuntimeException $e){}}
 echo "Unidade de potencia: W, kW, compatibilidade e validacao: OK\n";
+
+$legacy=Parameters::load();unset($legacy['flow_gauge_limit_w']);
+check(Parameters::validate($legacy)['flow_gauge_limit_w']===1000,'Limite fixo padrao compativel');
+foreach([99,1000001,'1000',0] as $limit){try{Parameters::validate(array_replace($legacy,['flow_gauge_limit_w'=>$limit]));throw new LogicException('Limite invalido deveria falhar');}catch(RuntimeException $e){}}
+check(Parameters::validate(array_replace($legacy,['flow_gauge_limit_w'=>5000]))['flow_gauge_limit_w']===5000,'Limite configuravel');
+echo "Gauge: limite fixo, compatibilidade e validacao: OK\n";
