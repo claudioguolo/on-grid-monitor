@@ -96,11 +96,14 @@ function configurePhases(){
 }
 const el=id=>document.getElementById(id);
 const fmt=v=>v.toLocaleString('pt-BR',{maximumFractionDigits:2});
+function formatPower(watts){
+ return settings?.power_unit==='kW'?(watts/1000).toLocaleString('pt-BR',{maximumFractionDigits:3})+' kW':fmt(watts)+' W';
+}
 function updateLive(payload,recent){
  for(const phase of activePhases){
   for(const [id,key,unit] of [['voltage','u'+phase+'rms',' V'],['current','i'+phase+'rms',' A'],['power','p'+phase,' W'],['pf','pf'+phase,'']]){
    const raw=payload?.[key],value=raw===undefined||raw===null||raw===''?NaN:Number(raw);
-   el(id+'-'+phase).textContent=recent&&Number.isFinite(value)?fmt(value)+unit:'—';
+   el(id+'-'+phase).textContent=recent&&Number.isFinite(value)?(id==='power'?formatPower(value):fmt(value)+unit):'—';
    if(id==='voltage'){
     const valid=recent&&Number.isFinite(value),gauge=el('gauge-'+phase);
     el('meter-'+phase).setAttribute('stroke-dashoffset',valid?100-Math.max(0,Math.min(260,value))/260*100:100);
@@ -113,15 +116,15 @@ function updateLive(payload,recent){
  const number=key=>payload?.[key]===undefined||payload?.[key]===null||payload?.[key]===''?NaN:Number(payload[key]);
  const powers=activePhases.map(phase=>number('p'+phase)),net=powers.every(Number.isFinite)?powers.reduce((sum,power)=>sum+power,0):NaN,freq=number('freq'),valid=recent&&Number.isFinite(net);
  const limit=Math.max(1000,Math.ceil(Math.abs(valid?net:0)/1000)*1000),gauge=el('gauge-net'),needle=el('net-needle');
- el('net').textContent=valid?fmt(net)+' W':'—';
+ el('net').textContent=valid?formatPower(net):'—';
  el('net-direction').textContent=valid?(net<0?'Injetando na rede':net>0?'Consumindo da rede':'Sem fluxo líquido'):'Sem medição recente';
  el('net').style.fill=valid?(net<0?'#60dfbe':net>0?'#ffbc65':'#e8eff9'):'#e8eff9';
  needle.setAttribute('visibility',valid?'visible':'hidden');needle.setAttribute('transform',`rotate(${valid?net/limit*90:0} 90 85)`);
  gauge.setAttribute('aria-valuemin',-limit);gauge.setAttribute('aria-valuemax',limit);
- gauge.setAttribute('aria-valuetext',valid?fmt(Math.abs(net))+' watts · '+el('net-direction').textContent:'Sem medição recente');
+ gauge.setAttribute('aria-valuetext',valid?formatPower(Math.abs(net))+' · '+el('net-direction').textContent:'Sem medição recente');
  if(valid)gauge.setAttribute('aria-valuenow',net);else gauge.removeAttribute('aria-valuenow');
- el('net-min').textContent='−'+fmt(limit/1000)+' kW';el('net-max').textContent='+'+fmt(limit/1000)+' kW';
- el('consumption').textContent=valid?fmt(Math.max(0,net))+' W':'—';el('injection').textContent=valid?fmt(Math.max(0,-net))+' W':'—';
+ el('net-min').textContent='−'+formatPower(limit);el('net-max').textContent='+'+formatPower(limit);
+ el('consumption').textContent=valid?formatPower(Math.max(0,net)):'—';el('injection').textContent=valid?formatPower(Math.max(0,-net)):'—';
  el('frequency').textContent=recent&&Number.isFinite(freq)?fmt(freq)+' Hz':'—';
 }
 async function refreshEnergy(){try{

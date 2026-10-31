@@ -67,3 +67,9 @@ foreach([['a'],['b'],['c'],['a','b'],['a','c'],['b','c'],['a','b','c']] as $phas
 $missing=['received_at'=>'2026-10-31T05:00:00+00:00','parsed'=>json_encode(['payload'=>['pc'=>10]])];
 check(M::point($missing,false,['c'])['net']===10.0&&M::point($missing,false,['a','c'])===null,'Fase ativa ausente nao vira zero');
 echo "Fases: sete combinacoes, compatibilidade, validacao, potencia, resumo, diario e dados ausentes: OK\n";
+
+$legacy=Parameters::load();unset($legacy['power_unit']);
+check(Parameters::validate($legacy)['power_unit']==='W','Unidade antiga continua em W');
+foreach(['W','kW'] as $unit)check(Parameters::validate(array_replace($legacy,['power_unit'=>$unit]))['power_unit']===$unit,'Unidade valida');
+foreach(['kWh','KW',[],123] as $unit){try{Parameters::validate(array_replace($legacy,['power_unit'=>$unit]));throw new LogicException('Unidade invalida deveria falhar');}catch(RuntimeException $e){}}
+echo "Unidade de potencia: W, kW, compatibilidade e validacao: OK\n";

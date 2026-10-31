@@ -53,6 +53,8 @@ foreach([['a'],['c'],['a','c'],['a','b','c']] as $phases){
 $invalid=$settings;$invalid['active_phases']=[];check(postForm($admin,'/admin/settings','/admin/settings',$invalid)===422,'Selecao vazia rejeitada');
 $invalid['active_phases']=['d'];check(postForm($admin,'/admin/settings','/admin/settings',$invalid)===422,'Fase desconhecida rejeitada');
 $settings['active_phases']=['a','b'];check(in_array(postForm($admin,'/admin/settings','/admin/settings',$settings),[302,303]),'Restaurar bifasico');
+foreach(['kW','W'] as $unit){$settings['power_unit']=$unit;check(in_array(postForm($admin,'/admin/settings','/admin/settings',$settings),[302,303]),'Salvar unidade');check(json_decode(request($viewer,'/api/settings')[1],true)['power_unit']===$unit,'Unidade persistida');}
+$invalid=$settings;$invalid['power_unit']='kWh';check(postForm($admin,'/admin/settings','/admin/settings',$invalid)===422,'Unidade invalida rejeitada');
 $audit=request($admin,'/admin/audit')[1];check(str_contains($audit,'settings.update')&&str_contains($audit,'user.create'),'Auditoria registrada');
 check(!str_contains($audit,$person['password'])&&!str_contains($audit,'$2y$'),'Auditoria nao expoe senhas');
 $self['active']='1';$self['password']='new-admin-password-2026';
