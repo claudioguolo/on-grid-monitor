@@ -2,6 +2,8 @@
 
 ## Alteracoes posteriores a 1.0.0-php
 
+- Graficos do painel e da aba Tecnica exibidos somente com linhas, sem marcadores circulares.
+
 - Area administrativa com usuarios, perfis Administrador/Consulta, senhas em hash, ativacao e redefinicao de senha.
 - Migracao do acesso atual para primeiro administrador, invalidacao de sessoes apos alteracoes e protecao do proprio acesso.
 - Configuracoes persistentes no MySQL e auditoria das alteracoes administrativas.
