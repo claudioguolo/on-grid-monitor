@@ -2,6 +2,8 @@
 
 ## Alteracoes posteriores a 1.0.0-php
 
+- Comparativo diario apresentado em barras agrupadas de consumo e geracao, mantendo os demais graficos em linhas.
+
 - Comparativo diario dos ultimos sete dias com grafico de linhas, consumo, energia injetada e saldo, respeitando fuso e cobertura do historico.
 
 - Graficos do painel e da aba Tecnica exibidos somente com linhas, sem marcadores circulares.
