@@ -110,19 +110,24 @@ async function refreshEnergy(){try{
 
 const ns='http://www.w3.org/2000/svg';
 function svgNode(tag,attrs,text){const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,v);if(text!==undefined)n.textContent=text;return n;}
-function chart(id,points,series,unit="W",label="Potência",maxGapMs=settings.stale_seconds*1000,dateOnly=false){
+function chart(id,points,series,unit="W",label="Potência",maxGapMs=settings.stale_seconds*1000,dateOnly=false,kind="line"){
  const root=el(id);root.replaceChildren();if(!points.length||!points.some(p=>series.some(s=>Number.isFinite(p[s.key])))){root.textContent='Nenhuma medição válida neste período.';return;}
  const w=1000,h=290,l=80,r=20,t=20,b=50;
  const times=points.map(p=>Date.parse(p.time));let minT=times[0],maxT=times.at(-1);if(minT===maxT){minT-=30000;maxT+=30000;}
  let low=0,high=0;for(const p of points)for(const s of series){if(Number.isFinite(p[s.key])){low=Math.min(low,p[s.key]);high=Math.max(high,p[s.key]);}}if(low===high)high=low+1;
  const pad=(high-low)*.08;high+=pad;if(low<0)low-=pad;
- const x=v=>l+(v-minT)/(maxT-minT)*(w-l-r),y=v=>t+(high-v)/(high-low)*(h-t-b);
+ const x=v=>kind==='bars'?l+(times.indexOf(v)+.5)*(w-l-r)/points.length:l+(v-minT)/(maxT-minT)*(w-l-r),y=v=>t+(high-v)/(high-low)*(h-t-b);
  const svg=svgNode('svg',{viewBox:`0 0 ${w} ${h}`,role:'img','aria-label':label+' '+unit,style:'width:100%;height:auto;min-height:180px'});
  for(let i=0;i<=4;i++){const v=low+(high-low)*i/4;svg.append(svgNode('line',{x1:l,x2:w-r,y1:y(v),y2:y(v),stroke:'#31435c'}));svg.append(svgNode('text',{x:l-8,y:y(v)+4,fill:'#b9c8da','font-size':12,'text-anchor':'end'},fmt(v)+(unit?' '+unit:'')));}
  svg.append(svgNode('line',{x1:l,x2:w-r,y1:y(0),y2:y(0),stroke:'#8396ad'}));
  const ticks=dateOnly?times:Array.from({length:5},(_,i)=>minT+(maxT-minT)*i/4);
  for(const time of ticks){const options={timeZone:settings.timezone,day:'2-digit',month:'2-digit',...(dateOnly?{}:{hour:'2-digit',minute:'2-digit'})};svg.append(svgNode('text',{x:x(time),y:h-18,fill:'#b9c8da','font-size':12,'text-anchor':'middle'},new Date(time).toLocaleString('pt-BR',options)));}
+ if(kind==='bars'){
+  const groupWidth=(w-l-r)/points.length,barWidth=Math.min(32,groupWidth*.7/series.length);
+  points.forEach((point,i)=>series.forEach((line,index)=>{const value=point[line.key];if(!Number.isFinite(value))return;const bar=svgNode('rect',{x:x(times[i])+(index-series.length/2)*barWidth+2,y:Math.min(y(value),y(0)),width:barWidth-4,height:Math.abs(y(value)-y(0)),fill:line.color,rx:2});bar.append(svgNode('title',{},new Date(point.time).toLocaleDateString('pt-BR',{timeZone:settings.timezone})+' · '+line.name+': '+fmt(value)+' '+unit));svg.append(bar);}));
+ }else{
  for(const s of series){let d='',previous=null;points.forEach((p,i)=>{if(!Number.isFinite(p[s.key])){previous=null;return;}d+=(previous===null||times[i]-previous>maxGapMs?'M':'L')+x(times[i])+','+y(p[s.key])+' ';previous=times[i];});svg.append(svgNode('path',{d,fill:'none',stroke:s.color,'stroke-width':2}));
+ }
  }
  root.append(svg);
 }
@@ -139,7 +144,7 @@ async function refreshDaily(){if(dailyBusy)return;dailyBusy=true;try{
  if(day.from&&day.to)coverage+=' · '+new Date(day.from).toLocaleTimeString('pt-BR',{timeZone:data.timezone,hour:'2-digit',minute:'2-digit'})+'–'+new Date(day.to).toLocaleTimeString('pt-BR',{timeZone:data.timezone,hour:'2-digit',minute:'2-digit'});
  note.textContent=coverage;name.append(note);row.append(name);
  for(const key of ['consumption','injection','balance']){const cell=document.createElement('td'),value=day[key];cell.textContent=value===null?'—':value.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:3,signDisplay:key==='balance'?'exceptZero':'auto'})+' kWh';cell.className=key==='balance'?(value>0?'injected':value<0?'consumed':''):key==='consumption'?'consumed':'injected';row.append(cell);}root.append(row);}
- chart('daily-chart',data.days,[{key:'consumption',color:'#ffbc65',name:'Consumida'},{key:'injection',color:'#60dfbe',name:'Gerada / injetada'}],'kWh','Comparativo diário',36*3600000,true);
+ chart('daily-chart',data.days,[{key:'consumption',color:'#ffbc65',name:'Consumida'},{key:'injection',color:'#60dfbe',name:'Gerada / injetada'}],'kWh','Comparativo diário',36*3600000,true,'bars');
  el('daily-info').textContent='Atualizado em '+new Date().toLocaleTimeString('pt-BR',{timeZone:data.timezone})+'.';
  }catch(e){el('daily-info').textContent='Não foi possível atualizar o comparativo: '+e.message;}finally{dailyBusy=false;}}
 const technicalMetrics=[
