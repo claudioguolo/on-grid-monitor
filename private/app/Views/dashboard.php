@@ -8,25 +8,35 @@
 :root{--blue:#8bbaff;--green:#60dfbe;--orange:#ffbc65;--purple:#d4a5ff;--border:#29394f}*{box-sizing:border-box}body{margin:0;background:#0c111a;color:#e8eff9;font:14px system-ui}a{color:#8dd9ff}p{color:#b9c8da;line-height:1.5;margin:8px 0}small{color:#9aacc1}h1{font-size:24px;letter-spacing:-.7px;margin:0}h2{font-size:15px;margin:0 0 10px}.dashboard{max-width:1680px;margin:auto;padding:18px 24px;min-width:0}.app-header,.header-actions,.status-strip,.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.app-header{margin-bottom:12px}.app-header p{font-size:12px;margin:3px 0 0}.header-actions{justify-content:flex-end;font-size:12px}.release-badge{padding:4px 7px;border:1px solid var(--border);border-radius:5px;color:#9aacc1;font:11px ui-monospace,monospace}.logout-form{margin:0}button,select{font:inherit;color:#e8eff9;background:#18273b;border:1px solid #40516a;border-radius:6px;padding:6px 10px;cursor:pointer}a:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--green);outline-offset:3px}.status-strip{justify-content:flex-start;column-gap:28px;padding:9px 12px;background:#111d2b;border:1px solid var(--border);border-radius:8px;font-size:12px;color:#9aacc1}.status-strip strong{color:#e8eff9;font-weight:550;margin-left:5px}.tabs{display:flex;gap:7px;margin:12px 0}.tabs button{padding:7px 16px}.tabs button[aria-selected="true"]{background:var(--green);color:#0c1726;border-color:var(--green);font-weight:650}article{background:#141f2e;border:1px solid var(--border);border-radius:9px;padding:14px;min-width:0}section{min-width:0}.live-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}.phase{--phase:var(--blue);border-top:2px solid var(--phase)}.phase.b{--phase:var(--purple)}.phase h2{color:var(--phase)}.phase-body{display:grid;grid-template-columns:minmax(120px,1fr) minmax(100px,1fr);align-items:center;gap:14px}.gauge{display:block;width:100%;max-width:210px;margin:auto;overflow:visible}.gauge-track,.gauge-fill{fill:none;stroke-width:12;stroke-linecap:round}.gauge-track{stroke:#29394f}.gauge-fill{stroke:var(--phase)}.gauge-value{fill:#e8eff9;font-size:22px;font-weight:650;text-anchor:middle}.gauge-label{fill:#9aacc1;font-size:10px;text-anchor:middle}.phase-values{display:grid;gap:8px}.phase-values small{display:block;font-size:11px}.phase-values strong{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}.flow-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.flow-grid small{display:block;font-size:11px}.value{font-size:22px;font-weight:650;font-variant-numeric:tabular-nums;margin-top:3px}.flow-meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding-top:10px;margin-top:10px;border-top:1px solid var(--border);font-size:12px}.flow-note{font-size:10px;margin:8px 0 0}.consumed{color:var(--orange)}.injected{color:var(--green)}.overview-grid{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:12px;margin-bottom:12px}.footer-note,.legend,#daily-range,#daily-info,#chart-info,#technical-info{font-size:11px}.energy-scroll{max-width:100%;overflow-x:auto}.energy-summary{width:100%;min-width:410px;border-collapse:collapse;font-size:12px}.energy-summary th,.energy-summary td{text-align:right;padding:10px 6px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums}.energy-summary th:first-child,.energy-summary td:first-child{text-align:left;padding-left:0;width:32%}.energy-summary td:not(:first-child){font-size:15px;white-space:nowrap}.coverage{display:block;margin-top:3px;color:#9aacc1;font-size:10px;font-weight:400}.energy-summary th{font-weight:550}.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:12px}.chart-grid>div{min-width:0}.chart-grid p{min-height:32px}.chart-grid svg,#daily-chart svg{display:block;width:100%;height:auto;min-height:150px!important}.section-head h2{margin:0}.section-head label{font-size:12px}.technical-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.technical-grid svg{min-height:140px!important}.technical-grid table{width:100%;border-collapse:collapse;font-size:11px}.technical-grid td,.technical-grid th{padding:5px 2px;text-align:right;border-bottom:1px solid var(--border)}.technical-grid th:first-child,.technical-grid td:first-child{text-align:left}details{border-bottom:1px solid var(--border);font-size:12px}summary{cursor:pointer;padding:9px 0;color:#b9c8da}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;background:#0c1726;padding:12px;border-radius:6px}#error{color:#ffb9a8}[hidden]{display:none!important}@media(min-width:1300px){.overview-grid{grid-template-columns:1fr 1.15fr}}@media(max-width:1100px){.live-grid{grid-template-columns:1fr 1fr}.flow-card{grid-column:1/-1}.flow-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.technical-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-grid{grid-template-columns:1fr}}@media(max-width:650px){.dashboard{padding:12px}.app-header{align-items:flex-start}.header-actions{justify-content:flex-start;gap:10px}.live-grid,.chart-grid,.technical-grid{grid-template-columns:1fr}.flow-card{grid-column:auto}.flow-grid{grid-template-columns:1fr 1fr}.status-strip{gap:7px 16px}.status-strip>span:last-child{flex-basis:100%}.phase-body{grid-template-columns:minmax(120px,1fr) minmax(100px,1fr)}.value{font-size:20px}.chart-grid{gap:16px}.energy-summary td:not(:first-child){font-size:13px}h1{font-size:22px}}
 
 .flow-gauge{max-width:195px}.flow-injection,.flow-consumption{fill:none;stroke-width:12;opacity:.7}.flow-injection{stroke:var(--green)}.flow-consumption{stroke:var(--orange)}.flow-description{font-size:11px;text-align:center;margin:6px 0 0;line-height:1.6}.flow-description strong{font-weight:550}.flow-card .flow-note{text-align:center;font-size:10px}.flow-gauge .gauge-value{font-size:21px}
+
+/* Equal tracks keep every visible panel proportional at each breakpoint. */
+.live-grid{grid-template-columns:repeat(var(--live-columns,3),minmax(0,1fr))}.phase.c{--phase:#f3d06b}.phase-body{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}.flow-card{grid-column:auto}.gauge-value{font-size:clamp(16px,1.6vw,22px)}.phase-values strong{font-size:clamp(15px,1.35vw,18px)}
+@media(max-width:1100px){.live-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.flow-card{grid-column:auto}}
+@media(max-width:650px){.live-grid{grid-template-columns:1fr}.gauge-value{font-size:22px}.phase-values strong{font-size:18px}}
 </style>
 <main class="dashboard">
-<header class="app-header"><div><h1>PY9MT Energia</h1><p>IE Tecnologia · SM-3W Lite · bifásico, fase C desconectada</p></div><div class="header-actions">
+<header class="app-header"><div><h1>PY9MT Energia</h1><p>IE Tecnologia · SM-3W Lite · <span id="circuit-description">Carregando fases…</span></p></div><div class="header-actions">
 <?php if(\App\Libraries\PanelAuth::isAdmin()): ?><a href="<?= esc($appPath.'/history') ?>">Importar histórico</a><a href="<?= esc($appPath.'/admin') ?>">Administração</a><?php endif ?>
 <span class="release-badge" title="Versão instalada da aplicação">v<?= esc(trim(file_get_contents(ROOTPATH.'VERSION'))) ?></span>
 <form class="logout-form" method="post" action="<?= esc($appPath.'/logout') ?>"><?= csrf_field() ?><button type="submit">Sair</button></form></div></header>
 <div class="status-strip" aria-label="Estado da coleta"><span>Conexão <strong id="status">Carregando…</strong></span><span>Envios <strong id="total">—</strong></span><span>Último envio <strong id="last">—</strong></span></div>
 <nav class="tabs" role="tablist" aria-label="Visões do monitor"><button id="overview-tab" role="tab" aria-selected="true" aria-controls="overview">Tempo real</button><button id="technical-tab" role="tab" aria-selected="false" aria-controls="technical" tabindex="-1">Técnica</button></nav>
 <section id="overview" role="tabpanel" aria-labelledby="overview-tab">
-<div class="live-grid"><article class="phase"><h2>Fase A</h2><div class="phase-body">
+<div class="live-grid"><article class="phase" data-phase="a"><h2>Fase A</h2><div class="phase-body">
 <svg class="gauge" id="gauge-a" viewBox="0 0 180 115" role="meter" aria-label="Tensão da fase A" aria-valuemin="0" aria-valuemax="260" aria-valuetext="Sem medição recente">
 <path class="gauge-track" d="M20 85 A70 70 0 0 1 160 85"/><path class="gauge-fill" id="meter-a" d="M20 85 A70 70 0 0 1 160 85" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
 <text class="gauge-value" id="voltage-a" x="90" y="77">—</text><text class="gauge-label" x="90" y="95">Tensão</text><text class="gauge-label" x="20" y="110">0 V</text><text class="gauge-label" x="160" y="110">260 V</text></svg>
 <div class="phase-values"><div><small>Corrente</small><strong id="current-a">—</strong></div><div><small>Potência ativa</small><strong id="power-a">—</strong></div><div><small>Fator de potência</small><strong id="pf-a">—</strong></div></div></div></article>
-<article class="phase b"><h2>Fase B</h2><div class="phase-body">
+<article class="phase b" data-phase="b"><h2>Fase B</h2><div class="phase-body">
 <svg class="gauge" id="gauge-b" viewBox="0 0 180 115" role="meter" aria-label="Tensão da fase B" aria-valuemin="0" aria-valuemax="260" aria-valuetext="Sem medição recente">
 <path class="gauge-track" d="M20 85 A70 70 0 0 1 160 85"/><path class="gauge-fill" id="meter-b" d="M20 85 A70 70 0 0 1 160 85" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
 <text class="gauge-value" id="voltage-b" x="90" y="77">—</text><text class="gauge-label" x="90" y="95">Tensão</text><text class="gauge-label" x="20" y="110">0 V</text><text class="gauge-label" x="160" y="110">260 V</text></svg>
 <div class="phase-values"><div><small>Corrente</small><strong id="current-b">—</strong></div><div><small>Potência ativa</small><strong id="power-b">—</strong></div><div><small>Fator de potência</small><strong id="pf-b">—</strong></div></div></div></article>
+<article class="phase c" data-phase="c" hidden><h2>Fase C</h2><div class="phase-body">
+<svg class="gauge" id="gauge-c" viewBox="0 0 180 115" role="meter" aria-label="Tensão da fase C" aria-valuemin="0" aria-valuemax="260" aria-valuetext="Sem medição recente">
+<path class="gauge-track" d="M20 85 A70 70 0 0 1 160 85"/><path class="gauge-fill" id="meter-c" d="M20 85 A70 70 0 0 1 160 85" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
+<text class="gauge-value" id="voltage-c" x="90" y="77">—</text><text class="gauge-label" x="90" y="95">Tensão</text><text class="gauge-label" x="20" y="110">0 V</text><text class="gauge-label" x="160" y="110">260 V</text></svg>
+<div class="phase-values"><div><small>Corrente</small><strong id="current-c">—</strong></div><div><small>Potência ativa</small><strong id="power-c">—</strong></div><div><small>Fator de potência</small><strong id="pf-c">—</strong></div></div></div></article>
 <article class="flow-card"><h2>Fluxo com a rede</h2>
 <svg class="gauge flow-gauge" id="gauge-net" viewBox="0 0 180 115" role="meter" aria-label="Potência líquida da rede" aria-valuemin="-1000" aria-valuemax="1000" aria-valuetext="Sem medição recente">
 <path d="M20 85 A70 70 0 0 1 90 15" class="flow-injection"/><path d="M90 15 A70 70 0 0 1 160 85" class="flow-consumption"/>
@@ -34,11 +44,11 @@
 <text class="gauge-value" id="net" x="90" y="78">—</text><text class="gauge-label" id="net-direction" x="90" y="94">Sem medição recente</text>
 <text class="gauge-label" id="net-min" x="24" y="110">−1 kW</text><text class="gauge-label" id="net-max" x="156" y="110">+1 kW</text></svg>
 <p class="flow-description"><span class="consumed">Consumida da rede: <strong id="consumption">—</strong></span> · <span class="injected">Injetada na rede: <strong id="injection">—</strong></span> · Frequência: <strong id="frequency">—</strong></p>
-<p class="flow-note">Potência líquida A + B · escala automática · verde: injeção; laranja: consumo.</p></article></div>
+<p class="flow-note">Potência líquida <span class="phase-list">A + B</span> · escala automática · verde: injeção; laranja: consumo.</p></article></div>
 <div class="overview-grid">
 <article><h2>Geração/Consumo</h2>
 <p class="footer-note">Gerada: energia injetada na rede. Total = gerada − consumida; positivo indica excedente injetado.</p>
-<div class="energy-scroll" role="region" aria-label="Geração e consumo por período" tabindex="0"><table class="energy-summary"><thead><tr><th scope="col">Período</th><th scope="col" class="consumed">Consumida</th><th scope="col" class="injected">Gerada</th><th scope="col">Total</th></tr></thead><tbody id="energy-summary"></tbody></table></div><details><summary>Como os totais são calculados</summary><p class="footer-note">Energia em kWh: soma das variações dos contadores das fases A e B, dentro de cada período. Totais parciais consideram apenas o histórico disponível. Calendário: <span id="timezone">—</span>, semana iniciando na segunda-feira. Injeção é o excedente enviado à rede, não a geração solar total.</p>
+<div class="energy-scroll" role="region" aria-label="Geração e consumo por período" tabindex="0"><table class="energy-summary"><thead><tr><th scope="col">Período</th><th scope="col" class="consumed">Consumida</th><th scope="col" class="injected">Gerada</th><th scope="col">Total</th></tr></thead><tbody id="energy-summary"></tbody></table></div><details><summary>Como os totais são calculados</summary><p class="footer-note">Energia em kWh: soma das variações dos contadores das fases <span class="phase-list">A + B</span>, dentro de cada período. Totais parciais consideram apenas o histórico disponível. Calendário: <span id="timezone">—</span>, semana iniciando na segunda-feira. Injeção é o excedente enviado à rede, não a geração solar total.</p>
 </details></article>
 <article><h2>Comparativo diário — últimos 7 dias</h2>
 <p id="daily-range">Incluindo hoje, em andamento.</p>
@@ -49,9 +59,9 @@
 <article>
 <div class="section-head"><h2>Histórico de potência</h2><div><label for="period">Período: </label><select id="period"><option value="1">Última hora</option><option value="6">Últimas 6 horas</option><option value="24" selected>Últimas 24 horas</option><option value="168">Últimos 7 dias</option></select></div></div>
 <div class="chart-grid"><div><h2>Potência consumida e injetada</h2>
-<p>Saldo das fases A + B, em watts (W). <span style="color:#ffbc65">● Consumo da rede</span> · <span style="color:#60dfbe">● Injeção na rede</span></p>
+<p>Saldo das fases <span class="phase-list">A + B</span>, em watts (W). <span style="color:#ffbc65">● Consumo da rede</span> · <span style="color:#60dfbe">● Injeção na rede</span></p>
 <div id="power-chart"></div></div><div>
-<h2>Potência por fase</h2><p><span style="color:#8bbaff">● Fase A</span> · <span style="color:#d4a5ff">● Fase B</span> · Positivo: consumo; negativo: injeção. Fase C desconectada.</p>
+<h2>Potência por fase</h2><p><span id="phase-legend"></span> · Positivo: consumo; negativo: injeção.</p>
 <div id="phase-chart"></div></div></div>
 <p id="chart-info" role="status"></p>
 <small>Os gráficos mostram potência instantânea, não energia acumulada em kWh nem geração solar total. Intervalos sem envio por mais de 3 minutos aparecem como interrupções.</small>
@@ -60,8 +70,8 @@
 <p id="error" role="status"></p><div id="readings"></div></details>
 </section>
 <section id="technical" role="tabpanel" aria-labelledby="technical-tab" hidden>
-<div class="section-head"><h2>Análise técnica · fases A e B</h2><div><label for="technical-period">Período: </label><select id="technical-period"><option value="1">Última hora</option><option value="6">Últimas 6 horas</option><option value="24" selected>Últimas 24 horas</option><option value="168">Últimos 7 dias</option></select></div></div>
-<p>Valores enviados pelo monitor, sem conversão de escala. Fase C desconectada.</p>
+<div class="section-head"><h2>Análise técnica · fases <span class="phase-list">A + B</span></h2><div><label for="technical-period">Período: </label><select id="technical-period"><option value="1">Última hora</option><option value="6">Últimas 6 horas</option><option value="24" selected>Últimas 24 horas</option><option value="168">Últimos 7 dias</option></select></div></div>
+<p>Valores enviados pelo monitor, sem conversão de escala. Apenas fases ativas.</p>
 <p id="technical-info" role="status">Aguardando carregamento.</p>
 <div id="technical-grid" class="technical-grid"></div>
 <p class="footer-note">Mínimo, máximo e média amostral calculados sobre as medições válidas do período exibido. A média não é ponderada pelo tempo. Dados ausentes e interrupções de comunicação deixam lacunas nos gráficos. Potência ativa negativa indica injeção na rede.</p>
@@ -70,10 +80,24 @@
 <script>
 const API_PREFIX = <?= json_encode($appPath, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 let settings;
+let activePhases=['a','b'];
+const phaseColors={a:'#8bbaff',b:'#d4a5ff',c:'#f3d06b'};
+function configurePhases(){
+ activePhases=settings.active_phases??['a','b'];
+ for(const node of document.querySelectorAll('[data-phase]'))node.hidden=!activePhases.includes(node.dataset.phase);
+ document.querySelector('.live-grid').style.setProperty('--live-columns',activePhases.length+1);
+ const label=activePhases.map(p=>p.toUpperCase()).join(' + ');
+ for(const node of document.querySelectorAll('.phase-list'))node.textContent=label;
+ const off=['a','b','c'].filter(p=>!activePhases.includes(p));
+ el('circuit-description').textContent=({1:'Monofásico',2:'Bifásico',3:'Trifásico'})[activePhases.length]+' · fases '+label+(off.length?' · desativadas: '+off.map(p=>p.toUpperCase()).join(', '):'');
+ const legend=el('phase-legend');legend.replaceChildren();
+ for(const phase of activePhases){if(legend.childNodes.length)legend.append(' · ');const span=document.createElement('span');span.style.color=phaseColors[phase];span.textContent='● Fase '+phase.toUpperCase();legend.append(span);}
+ buildTechnicalCards();
+}
 const el=id=>document.getElementById(id);
 const fmt=v=>v.toLocaleString('pt-BR',{maximumFractionDigits:2});
 function updateLive(payload,recent){
- for(const phase of ['a','b']){
+ for(const phase of activePhases){
   for(const [id,key,unit] of [['voltage','u'+phase+'rms',' V'],['current','i'+phase+'rms',' A'],['power','p'+phase,' W'],['pf','pf'+phase,'']]){
    const raw=payload?.[key],value=raw===undefined||raw===null||raw===''?NaN:Number(raw);
    el(id+'-'+phase).textContent=recent&&Number.isFinite(value)?fmt(value)+unit:'—';
@@ -87,7 +111,7 @@ function updateLive(payload,recent){
   }
  }
  const number=key=>payload?.[key]===undefined||payload?.[key]===null||payload?.[key]===''?NaN:Number(payload[key]);
- const a=number('pa'),b=number('pb'),net=a+b,freq=number('freq'),valid=recent&&Number.isFinite(net);
+ const powers=activePhases.map(phase=>number('p'+phase)),net=powers.every(Number.isFinite)?powers.reduce((sum,power)=>sum+power,0):NaN,freq=number('freq'),valid=recent&&Number.isFinite(net);
  const limit=Math.max(1000,Math.ceil(Math.abs(valid?net:0)/1000)*1000),gauge=el('gauge-net'),needle=el('net-needle');
  el('net').textContent=valid?fmt(net)+' W':'—';
  el('net-direction').textContent=valid?(net<0?'Injetando na rede':net>0?'Consumindo da rede':'Sem fluxo líquido'):'Sem medição recente';
@@ -157,19 +181,23 @@ async function refreshDaily(){if(dailyBusy)return;dailyBusy=true;try{
  el('daily-info').textContent='Atualizado em '+new Date().toLocaleTimeString('pt-BR',{timeZone:data.timezone})+'.';
  }catch(e){el('daily-info').textContent='Não foi possível atualizar o comparativo: '+e.message;}finally{dailyBusy=false;}}
 const technicalMetrics=[
- {id:'active',title:'Potência ativa',unit:'W',keys:['pa','pb']},
- {id:'reactive',title:'Potência reativa',unit:'var',keys:['qa','qb']},
- {id:'apparent',title:'Potência aparente',unit:'VA',keys:['sa','sb']},
- {id:'voltage',title:'Tensão',unit:'V',keys:['uarms','ubrms']},
- {id:'current',title:'Corrente',unit:'A',keys:['iarms','ibrms']},
- {id:'factor',title:'Fator de potência',unit:'',keys:['pfa','pfb']},
- {id:'frequency',title:'Frequência',unit:'Hz',keys:['freq']}
+ {id:'active',title:'Potência ativa',unit:'W',format:p=>'p'+p},
+ {id:'reactive',title:'Potência reativa',unit:'var',format:p=>'q'+p},
+ {id:'apparent',title:'Potência aparente',unit:'VA',format:p=>'s'+p},
+ {id:'voltage',title:'Tensão',unit:'V',format:p=>'u'+p+'rms'},
+ {id:'current',title:'Corrente',unit:'A',format:p=>'i'+p+'rms'},
+ {id:'factor',title:'Fator de potência',unit:'',format:p=>'pf'+p},
+ {id:'frequency',title:'Frequência',unit:'Hz'}
 ];
-for(const metric of technicalMetrics){const card=document.createElement('article'),heading=document.createElement('h2'),legend=document.createElement('p'),graph=document.createElement('div'),stats=document.createElement('div');heading.textContent=metric.title+(metric.unit?' ['+metric.unit+']':'');legend.className='legend';legend.textContent=metric.keys.length===2?'● Fase A (azul) · ● Fase B (lilás)':'● Frequência da rede';graph.id='technical-'+metric.id;stats.id=graph.id+'-stats';card.append(heading,legend,graph,stats);el('technical-grid').append(card);}
+function metricSeries(metric){return metric.id==='frequency'?[{key:'freq',color:'#8bbaff',name:'Rede'}]:activePhases.map(p=>({key:metric.format(p),color:phaseColors[p],name:'Fase '+p.toUpperCase()}));}
+function buildTechnicalCards(){
+ el('technical-grid').replaceChildren();
+ for(const metric of technicalMetrics){const card=document.createElement('article'),heading=document.createElement('h2'),legend=document.createElement('p'),graph=document.createElement('div'),stats=document.createElement('div');heading.textContent=metric.title+(metric.unit?' ['+metric.unit+']':'');legend.className='legend';legend.textContent=metricSeries(metric).map(s=>s.name).join(' · ');graph.id='technical-'+metric.id;stats.id=graph.id+'-stats';card.append(heading,legend,graph,stats);el('technical-grid').append(card);}
+}
 let technicalBusy=false;
 async function refreshTechnical(){if(!settings||el('technical').hidden||technicalBusy)return;technicalBusy=true;const period=el('technical-period').value;try{
  const response=await fetch(API_PREFIX+'/api/technical?hours='+period);if(response.status===401){window.location.assign(API_PREFIX+'/login');return;}if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();if(period!==el('technical-period').value)return;
- for(const metric of technicalMetrics){const series=metric.keys.map((key,i)=>({key,color:i?'#d4a5ff':'#8bbaff',name:metric.keys.length===1?'Rede':'Fase '+(i?'B':'A')}));chart('technical-'+metric.id,data.points,series,metric.unit,metric.title);
+ for(const metric of technicalMetrics){const series=metricSeries(metric);chart('technical-'+metric.id,data.points,series,metric.unit,metric.title);
  const root=el('technical-'+metric.id+'-stats');root.replaceChildren();const table=document.createElement('table');table.setAttribute('aria-label','Estatísticas de '+metric.title);const head=document.createElement('tr');for(const text of ['Série','Mín.','Máx.','Média']){const cell=document.createElement('th');cell.textContent=text;head.append(cell);}table.append(head);
  for(const line of series){const values=data.points.map(p=>p[line.key]).filter(Number.isFinite),row=document.createElement('tr');let min=Infinity,max=-Infinity,sum=0;for(const v of values){min=Math.min(min,v);max=Math.max(max,v);sum+=v;}for(const text of [line.name,...(values.length?[min,max,sum/values.length].map(v=>fmt(v)+(metric.unit?' '+metric.unit:'')):['—','—','—'])]){const cell=document.createElement('td');cell.textContent=text;row.append(cell);}table.append(row);}root.append(table);}
  const latest=data.points.at(-1);el('technical-info').textContent=data.points.length+' medições no período.'+(data.truncated?' Exibindo as '+settings.history_limit+' mais recentes.':'')+(latest?' Última: '+new Date(latest.time).toLocaleString('pt-BR',{timeZone:settings.timezone})+'.':' Nenhum dado disponível.')+(latest&&Date.now()-Date.parse(latest.time)>settings.stale_seconds*1000?' Sem envio recente.':'');
@@ -181,7 +209,7 @@ let chartBusy=false;
 async function refreshCharts(){if(chartBusy)return;chartBusy=true;try{
  const period=el('period').value,response=await fetch(API_PREFIX+'/api/power?hours='+period);if(response.status===401){window.location.assign(API_PREFIX+'/login');return;}if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();if(period!==el('period').value)return;
  chart('power-chart',data.points,[{key:'consumption',color:'#ffbc65',name:'Consumo'},{key:'injection',color:'#60dfbe',name:'Injeção'}]);
- chart('phase-chart',data.points,[{key:'a',color:'#8bbaff',name:'Fase A'},{key:'b',color:'#d4a5ff',name:'Fase B'}]);
+ chart('phase-chart',data.points,activePhases.map(phase=>({key:phase,color:phaseColors[phase],name:'Fase '+phase.toUpperCase()})));
  const latest=data.points.at(-1),recent=latest&&Date.now()-Date.parse(latest.time)<settings.stale_seconds*1000;
  el('chart-info').textContent=`${data.points.length} medições no período.`+(data.truncated?` Exibindo as ${settings.history_limit} mais recentes.`:'')+(!recent?' Aguardando medição recente.':'');
  }catch(e){el('chart-info').textContent='Não foi possível atualizar os gráficos: '+e.message;}finally{chartBusy=false;}}
@@ -201,6 +229,7 @@ async function refresh(){try{
 }catch(e){updateLive(null,false);el('error').textContent='Não foi possível atualizar: '+e.message;el('status').textContent='Falha de conexão';}}
 async function start(){try{
  const response=await fetch(API_PREFIX+'/api/settings');if(response.status===401){window.location.assign(API_PREFIX+'/login');return;}if(!response.ok)throw new Error('HTTP '+response.status);settings=await response.json();
+ configurePhases();
  el('timezone').textContent=settings.timezone;el('period').value=String(settings.default_chart_hours);el('technical-period').value=String(settings.default_chart_hours);
  refresh();refreshCharts();refreshEnergy();refreshDaily();
  setInterval(refreshDaily,Math.max(30,settings.refresh_seconds)*1000);setInterval(refreshTechnical,settings.refresh_seconds*1000);setInterval(refresh,settings.refresh_seconds*1000);setInterval(refreshCharts,settings.refresh_seconds*1000);setInterval(refreshEnergy,settings.refresh_seconds*1000);

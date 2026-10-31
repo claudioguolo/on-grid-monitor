@@ -4,5 +4,9 @@
   "max_payload_bytes": 262144,
   "history_limit": 30000,
   "default_chart_hours": 24,
-  "refresh_seconds": 10
+  "refresh_seconds": 10,
+  "active_phases": [
+    "a",
+    "b"
+  ]
 }
