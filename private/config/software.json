@@ -9,5 +9,6 @@
     "a",
     "b"
   ],
-  "power_unit": "W"
+  "power_unit": "W",
+  "flow_gauge_limit_w": 1000
 }
