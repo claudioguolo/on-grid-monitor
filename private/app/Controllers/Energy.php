@@ -144,6 +144,17 @@ class Energy extends BaseController
     }
     public function power() { return $this->history(false); }
     public function technical() { return $this->history(true); }
+    public function daily()
+    {
+        if($denied=$this->protectedAccess())return $denied;
+        $config=Parameters::load();$now=new \DateTimeImmutable('now',new \DateTimeZone($config['timezone']));
+        $since=$now->setTime(0,0)->modify('-6 days')->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d\TH:i:sP');
+        $until=$now->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d\TH:i:s.uP');
+        $result=db_connect()->table('readings')->select('received_at,parsed')->where('received_at >=',$since)->where('received_at <=',$until)->orderBy('received_at')->orderBy('id')->get();
+        $rows=(function()use($result){while($row=$result->getUnbufferedRow('array'))yield $row;})();
+        try{$days=Measurements::daily($rows,$config,$now);}finally{$result->freeResult();}
+        return $this->json(['timezone'=>$config['timezone'],'days'=>$days]);
+    }
     public function summary()
     {
         if ($denied=$this->protectedAccess()) return $denied;

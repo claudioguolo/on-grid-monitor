@@ -47,6 +47,12 @@ body{font:16px system-ui;background:#0c1726;color:#e8eff9;max-width:1100px;margi
 <p class="footer-note">Gerada: energia injetada na rede. Total = gerada − consumida; positivo indica excedente injetado.</p>
 <div class="energy-scroll" role="region" aria-label="Geração e consumo por período" tabindex="0"><table class="energy-summary"><thead><tr><th scope="col">Período</th><th scope="col" class="consumed">Consumida</th><th scope="col" class="injected">Gerada</th><th scope="col">Total</th></tr></thead><tbody id="energy-summary"></tbody></table></div></article>
 <p class="footer-note">Energia em kWh: soma das variações dos contadores das fases A e B, dentro de cada período. Totais parciais consideram apenas o histórico disponível. Calendário: <span id="timezone">—</span>, semana iniciando na segunda-feira. Injeção é o excedente enviado à rede, não a geração solar total.</p>
+<article><h2>Comparativo diário — últimos 7 dias</h2>
+<p id="daily-range">Incluindo hoje, em andamento.</p>
+<p><span class="consumed">● Consumida</span> · <span class="injected">● Gerada / injetada</span> · energia em kWh</p>
+<div id="daily-chart"></div>
+<div class="energy-scroll" role="region" aria-label="Comparativo diário de geração e consumo" tabindex="0"><table class="energy-summary"><thead><tr><th scope="col">Dia</th><th scope="col" class="consumed">Consumida</th><th scope="col" class="injected">Gerada</th><th scope="col">Total</th></tr></thead><tbody id="daily-summary"></tbody></table></div>
+<p id="daily-info" role="status"></p><small>Gerada corresponde à energia injetada na rede. Total = gerada − consumida. Dias sem histórico não são tratados como zero; dias parciais e reinícios de contador são sinalizados. Os valores usam as variações dos contadores entre as amostras disponíveis de cada dia.</small></article>
 <article>
 <label for="period">Período: </label><select id="period"><option value="1">Última hora</option><option value="6">Últimas 6 horas</option><option value="24" selected>Últimas 24 horas</option><option value="168">Últimos 7 dias</option></select>
 <h2>Potência consumida e injetada</h2>
@@ -104,7 +110,7 @@ async function refreshEnergy(){try{
 
 const ns='http://www.w3.org/2000/svg';
 function svgNode(tag,attrs,text){const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,v);if(text!==undefined)n.textContent=text;return n;}
-function chart(id,points,series,unit="W",label="Potência"){
+function chart(id,points,series,unit="W",label="Potência",maxGapMs=settings.stale_seconds*1000,dateOnly=false){
  const root=el(id);root.replaceChildren();if(!points.length||!points.some(p=>series.some(s=>Number.isFinite(p[s.key])))){root.textContent='Nenhuma medição válida neste período.';return;}
  const w=1000,h=290,l=80,r=20,t=20,b=50;
  const times=points.map(p=>Date.parse(p.time));let minT=times[0],maxT=times.at(-1);if(minT===maxT){minT-=30000;maxT+=30000;}
@@ -114,11 +120,28 @@ function chart(id,points,series,unit="W",label="Potência"){
  const svg=svgNode('svg',{viewBox:`0 0 ${w} ${h}`,role:'img','aria-label':label+' '+unit,style:'width:100%;height:auto;min-height:180px'});
  for(let i=0;i<=4;i++){const v=low+(high-low)*i/4;svg.append(svgNode('line',{x1:l,x2:w-r,y1:y(v),y2:y(v),stroke:'#31435c'}));svg.append(svgNode('text',{x:l-8,y:y(v)+4,fill:'#b9c8da','font-size':12,'text-anchor':'end'},fmt(v)+(unit?' '+unit:'')));}
  svg.append(svgNode('line',{x1:l,x2:w-r,y1:y(0),y2:y(0),stroke:'#8396ad'}));
- for(let i=0;i<=4;i++){const time=minT+(maxT-minT)*i/4;svg.append(svgNode('text',{x:x(time),y:h-18,fill:'#b9c8da','font-size':12,'text-anchor':'middle'},new Date(time).toLocaleString('pt-BR',{timeZone:settings.timezone,day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})));}
- for(const s of series){let d='',previous=null;points.forEach((p,i)=>{if(!Number.isFinite(p[s.key])){previous=null;return;}d+=(previous===null||times[i]-previous>settings.stale_seconds*1000?'M':'L')+x(times[i])+','+y(p[s.key])+' ';previous=times[i];});svg.append(svgNode('path',{d,fill:'none',stroke:s.color,'stroke-width':2}));
+ const ticks=dateOnly?times:Array.from({length:5},(_,i)=>minT+(maxT-minT)*i/4);
+ for(const time of ticks){const options={timeZone:settings.timezone,day:'2-digit',month:'2-digit',...(dateOnly?{}:{hour:'2-digit',minute:'2-digit'})};svg.append(svgNode('text',{x:x(time),y:h-18,fill:'#b9c8da','font-size':12,'text-anchor':'middle'},new Date(time).toLocaleString('pt-BR',options)));}
+ for(const s of series){let d='',previous=null;points.forEach((p,i)=>{if(!Number.isFinite(p[s.key])){previous=null;return;}d+=(previous===null||times[i]-previous>maxGapMs?'M':'L')+x(times[i])+','+y(p[s.key])+' ';previous=times[i];});svg.append(svgNode('path',{d,fill:'none',stroke:s.color,'stroke-width':2}));
  }
  root.append(svg);
 }
+let dailyBusy=false;
+async function refreshDaily(){if(dailyBusy)return;dailyBusy=true;try{
+ const response=await fetch(API_PREFIX+'/api/daily');if(response.status===401){window.location.assign(API_PREFIX+'/login');return;}if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();
+ const root=el('daily-summary');root.replaceChildren();
+ const dateOptions={timeZone:data.timezone,day:'2-digit',month:'2-digit'};
+ el('daily-range').textContent=new Date(data.days[0].time).toLocaleDateString('pt-BR',dateOptions)+' a '+new Date(data.days.at(-1).time).toLocaleDateString('pt-BR',dateOptions)+' · '+data.timezone+' · incluindo hoje, em andamento';
+ for(const day of data.days){const row=document.createElement('tr'),name=document.createElement('th');name.scope='row';name.textContent=new Date(day.time).toLocaleDateString('pt-BR',{...dateOptions,weekday:'short'});const note=document.createElement('small');note.className='coverage';
+ let coverage=day.samples===0?'Sem histórico':day.samples<2?'Amostras insuficientes':day.partial?'Parcial':'Histórico disponível';
+ if(day.in_progress)coverage='Hoje · em andamento · '+coverage;
+ if(day.resets)coverage+=' · reinício de contador';
+ if(day.from&&day.to)coverage+=' · '+new Date(day.from).toLocaleTimeString('pt-BR',{timeZone:data.timezone,hour:'2-digit',minute:'2-digit'})+'–'+new Date(day.to).toLocaleTimeString('pt-BR',{timeZone:data.timezone,hour:'2-digit',minute:'2-digit'});
+ note.textContent=coverage;name.append(note);row.append(name);
+ for(const key of ['consumption','injection','balance']){const cell=document.createElement('td'),value=day[key];cell.textContent=value===null?'—':value.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:3,signDisplay:key==='balance'?'exceptZero':'auto'})+' kWh';cell.className=key==='balance'?(value>0?'injected':value<0?'consumed':''):key==='consumption'?'consumed':'injected';row.append(cell);}root.append(row);}
+ chart('daily-chart',data.days,[{key:'consumption',color:'#ffbc65',name:'Consumida'},{key:'injection',color:'#60dfbe',name:'Gerada / injetada'}],'kWh','Comparativo diário',36*3600000,true);
+ el('daily-info').textContent='Atualizado em '+new Date().toLocaleTimeString('pt-BR',{timeZone:data.timezone})+'.';
+ }catch(e){el('daily-info').textContent='Não foi possível atualizar o comparativo: '+e.message;}finally{dailyBusy=false;}}
 const technicalMetrics=[
  {id:'active',title:'Potência ativa',unit:'W',keys:['pa','pb']},
  {id:'reactive',title:'Potência reativa',unit:'var',keys:['qa','qb']},
@@ -166,8 +189,8 @@ async function refresh(){try{
 async function start(){try{
  const response=await fetch(API_PREFIX+'/api/settings');if(response.status===401){window.location.assign(API_PREFIX+'/login');return;}if(!response.ok)throw new Error('HTTP '+response.status);settings=await response.json();
  el('timezone').textContent=settings.timezone;el('period').value=String(settings.default_chart_hours);el('technical-period').value=String(settings.default_chart_hours);
- refresh();refreshCharts();refreshEnergy();
- setInterval(refreshTechnical,settings.refresh_seconds*1000);setInterval(refresh,settings.refresh_seconds*1000);setInterval(refreshCharts,settings.refresh_seconds*1000);setInterval(refreshEnergy,settings.refresh_seconds*1000);
+ refresh();refreshCharts();refreshEnergy();refreshDaily();
+ setInterval(refreshDaily,Math.max(30,settings.refresh_seconds)*1000);setInterval(refreshTechnical,settings.refresh_seconds*1000);setInterval(refresh,settings.refresh_seconds*1000);setInterval(refreshCharts,settings.refresh_seconds*1000);setInterval(refreshEnergy,settings.refresh_seconds*1000);
 }catch(e){el('error').textContent='Falha ao carregar parâmetros: '+e.message;}}
 start();
 </script>
