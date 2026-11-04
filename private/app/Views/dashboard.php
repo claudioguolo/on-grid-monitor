@@ -116,7 +116,7 @@ function updateLive(payload,recent){
  const number=key=>payload?.[key]===undefined||payload?.[key]===null||payload?.[key]===''?NaN:Number(payload[key]);
  const powers=activePhases.map(phase=>number('p'+phase)),net=powers.every(Number.isFinite)?powers.reduce((sum,power)=>sum+power,0):NaN,freq=number('freq'),valid=recent&&Number.isFinite(net);
  const limit=settings?.flow_gauge_limit_w??1000,gauge=el('gauge-net'),needle=el('net-needle');
- el('net').textContent=valid?formatPower(net):'—';
+ el('net').textContent=valid?formatPower(Math.abs(net)):'—';
  el('net-direction').textContent=valid?(net<0?'Injetando na rede':net>0?'Consumindo da rede':'Sem fluxo líquido'):'Sem medição recente';
  el('net').style.fill=valid?(net<0?'#60dfbe':net>0?'#ffbc65':'#e8eff9'):'#e8eff9';
  needle.setAttribute('visibility',valid?'visible':'hidden');needle.setAttribute('transform',`rotate(${valid?Math.max(-1,Math.min(1,net/limit))*90:0} 90 85)`);
