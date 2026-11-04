@@ -42,7 +42,7 @@
 <path d="M20 85 A70 70 0 0 1 90 15" class="flow-injection"/><path d="M90 15 A70 70 0 0 1 160 85" class="flow-consumption"/>
 <text class="gauge-label" x="90" y="7">0,00</text><path id="net-needle" d="M90 50 L90 22" stroke="#e8eff9" stroke-width="3" stroke-linecap="round" visibility="hidden"/>
 <text class="gauge-value" id="net" x="90" y="78">—</text><text class="gauge-label" id="net-direction" x="90" y="94">Sem medição recente</text>
-<text class="gauge-label" id="net-min" x="24" y="110">−1 kW</text><text class="gauge-label" id="net-max" x="156" y="110">+1 kW</text></svg>
+<text class="gauge-label" id="net-min" style="fill:var(--green)" x="24" y="110">1 kW</text><text class="gauge-label" id="net-max" style="fill:var(--orange)" x="156" y="110">1 kW</text></svg>
 <div class="phase-values"><div><small>Consumida da rede</small><strong class="consumed" id="consumption">—</strong></div><div><small>Injetada na rede</small><strong class="injected" id="injection">—</strong></div><div><small>Frequência</small><strong id="frequency">—</strong></div></div></div>
 <p class="flow-note">Potência líquida <span class="phase-list">A + B</span> · escala fixa · verde: injeção; laranja: consumo. <span id="gauge-limit-note" class="consumed"></span></p></article></div>
 <div class="overview-grid">
@@ -124,7 +124,7 @@ function updateLive(payload,recent){
  gauge.setAttribute('aria-valuetext',valid?formatPower(Math.abs(net))+' · '+el('net-direction').textContent:'Sem medição recente');
  el('gauge-limit-note').textContent=valid&&Math.abs(net)>limit?'Valor fora da escala.':'';
  if(valid)gauge.setAttribute('aria-valuenow',Math.max(-limit,Math.min(limit,net)));else gauge.removeAttribute('aria-valuenow');
- el('net-min').textContent='−'+formatPower(limit);el('net-max').textContent='+'+formatPower(limit);
+ el('net-min').textContent=formatPower(limit);el('net-max').textContent=formatPower(limit);
  el('consumption').textContent=valid?formatPower(Math.max(0,net)):'—';el('injection').textContent=valid?formatPower(Math.max(0,-net)):'—';
  el('frequency').textContent=recent&&Number.isFinite(freq)?fmt(freq)+' Hz':'—';
 }
