@@ -41,13 +41,28 @@ final class Measurements
         return $out+$values+['net'=>$net,'consumption'=>max($net,0),'injection'=>max(-$net,0)];
     }
 
+    public static function billingPeriods(array $config, \DateTimeImmutable $now): array
+    {
+        $now=$now->setTimezone(new \DateTimeZone($config['timezone']));
+        $month=$now->modify('first day of this month')->setTime(0,0);
+        $boundary=static function($month)use($config){
+            $day=min($config['billing_closing_day']??20,(int)$month->format('t'));
+            return $month->setDate((int)$month->format('Y'),(int)$month->format('m'),$day)->modify('+1 day');
+        };
+        $next=$boundary($month);
+        if($now<$next){$start=$boundary($month->modify('-1 month'));$previous=$boundary($month->modify('-2 months'));}
+        else{$start=$next;$next=$boundary($month->modify('+1 month'));$previous=$boundary($month->modify('-1 month'));}
+        return ['start'=>$start,'end'=>$next,'previous'=>$previous];
+    }
+
     public static function summary(iterable $rows, array $config, ?\DateTimeImmutable $now=null): array
     {
         $phases=$config['active_phases']??['a','b'];
         $zone=new \DateTimeZone($config['timezone']);
         $now=($now ?? new \DateTimeImmutable())->setTimezone($zone);
-        $day=$now->setTime(0,0); $month=$day->modify('first day of this month');
-        $previous=$month->modify('-1 month'); $week=$day->modify('-'.((int)$day->format('N')-1).' days');
+        $cycle=self::billingPeriods($config,$now);
+        $day=$now->setTime(0,0); $month=$cycle['start'];
+        $previous=$cycle['previous']; $week=$day->modify('-'.((int)$day->format('N')-1).' days');
         $periods=['today'=>[$day,$now],'week'=>[$week,$now],'month'=>[$month,$now],'previous_month'=>[$previous,$month]];
         $states=[];
         foreach ($periods as $name=>$bounds) $states[$name]=['consumption'=>0.0,'injection'=>0.0,'from'=>null,'to'=>null,'samples'=>0,'resets'=>0,'last'=>null];
@@ -69,11 +84,17 @@ final class Measurements
             }
         }
         foreach ($states as $name=>&$s) {
+            $s['period_start']=$periods[$name][0]->format(DATE_ATOM);
+            $s['period_end']=($name==='month'?$cycle['end']:$periods[$name][1])->format(DATE_ATOM);
             unset($s['last']); $enough=$s['samples']>=2;
             $s['consumption']=$enough?round($s['consumption'],6):null;
             $s['injection']=$enough?round($s['injection'],6):null;
             $s['partial']=!$enough || $s['resets']>0 || (new \DateTimeImmutable($s['from']))->getTimestamp()-$periods[$name][0]->getTimestamp()>120 || $periods[$name][1]->getTimestamp()-(new \DateTimeImmutable($s['to']))->getTimestamp()>$config['stale_seconds'];
         }
+        $days=(int)$month->diff($day)->format('%a')+1;
+        $average=$states['month']['injection']===null?null:round($states['month']['injection']/$days,6);
+        $target=$config['daily_injection_target_kwh']??20.0;
+        $states['injection_goal']=['target'=>$target,'average'=>$average,'difference'=>$average===null?null:round($average-$target,6),'days'=>$days,'partial'=>$states['month']['partial']];
         return $states;
     }
 

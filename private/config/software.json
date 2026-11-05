@@ -10,5 +10,7 @@
     "b"
   ],
   "power_unit": "W",
-  "flow_gauge_limit_w": 1000
+  "flow_gauge_limit_w": 1000,
+  "billing_closing_day": 20,
+  "daily_injection_target_kwh": 20
 }
