@@ -65,3 +65,9 @@ check(request($admin,'/api/readings')[0]===401,'Alteracao propria encerra sessao
 check(login($admin,'test','test-only-password')===401,'Senha antiga do .env nao permite contornar nova senha');
 check(in_array(login($admin,'test',$self['password']),[302,303]),'Nova senha administrativa aceita');
 echo "Administracao: cadastro, perfis, bloqueios, desativacao, sessoes, senhas, parametros e auditoria: OK\n";
+
+$settings['billing_closing_day']=20;$settings['daily_injection_target_kwh']=20.5;
+check(in_array(postForm($admin,'/admin/settings','/admin/settings',$settings),[302,303]),'Salvar ciclo e meta');
+$loaded=json_decode(request($viewer,'/api/settings')[1],true);check($loaded['billing_closing_day']===20&&$loaded['daily_injection_target_kwh']==20.5,'Ciclo e meta persistidos');
+$invalid=$settings;$invalid['billing_closing_day']=32;check(postForm($admin,'/admin/settings','/admin/settings',$invalid)===422,'Fechamento invalido rejeitado');
+$invalid=$settings;$invalid['daily_injection_target_kwh']=-1;check(postForm($admin,'/admin/settings','/admin/settings',$invalid)===422,'Meta negativa rejeitada');

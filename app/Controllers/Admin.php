@@ -53,7 +53,10 @@ class Admin extends BaseController
         $settings=[];
         try{
             $zone=$this->request->getPost('timezone');if(!is_string($zone))throw new \InvalidArgumentException('Fuso inválido.');$settings['timezone']=$zone;
-            foreach(['flow_gauge_limit_w','stale_seconds','max_payload_bytes','history_limit','default_chart_hours','refresh_seconds'] as $key){$value=$this->request->getPost($key);if(!is_string($value)||!ctype_digit($value))throw new \InvalidArgumentException('Informe números inteiros válidos.');$settings[$key]=(int)$value;}
+            foreach(['billing_closing_day','flow_gauge_limit_w','stale_seconds','max_payload_bytes','history_limit','default_chart_hours','refresh_seconds'] as $key){$value=$this->request->getPost($key);if(!is_string($value)||!ctype_digit($value))throw new \InvalidArgumentException('Informe números inteiros válidos.');$settings[$key]=(int)$value;}
+            $target=$this->request->getPost('daily_injection_target_kwh');
+            if(!is_string($target)||!is_numeric($target))throw new \InvalidArgumentException('Meta diária inválida.');
+            $settings['daily_injection_target_kwh']=(float)$target;
             $settings['active_phases']=$this->request->getPost('active_phases')??[];
             $settings['power_unit']=$this->request->getPost('power_unit')??'W';
             AdminStore::saveSettings((int)PanelAuth::current()['id'],$settings);

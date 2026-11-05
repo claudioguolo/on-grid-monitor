@@ -160,7 +160,8 @@ class Energy extends BaseController
         if ($denied=$this->protectedAccess()) return $denied;
         $c=Parameters::load(); $zone=new \DateTimeZone($c['timezone']);
         $now=new \DateTimeImmutable('now',$zone);
-        $since=$now->modify('first day of this month')->setTime(0,0)->modify('-1 month')->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d\TH:i:s.uP');
+        $cycle=Measurements::billingPeriods($c,$now);
+        $since=min($cycle['previous'],$now->setTime(0,0)->modify('-'.((int)$now->format('N')-1).' days'))->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d\TH:i:s.uP');
         $result=db_connect()->table('readings')->select('received_at,parsed')->where('received_at >=',$since)->orderBy('received_at')->orderBy('id')->get();
         $rows=(function()use($result){while($row=$result->getUnbufferedRow('array'))yield $row;})();
         $summary=Measurements::summary($rows,$c,$now); $result->freeResult();

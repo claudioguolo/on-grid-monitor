@@ -79,3 +79,27 @@ check(Parameters::validate($legacy)['flow_gauge_limit_w']===1000,'Limite fixo pa
 foreach([99,1000001,'1000',0] as $limit){try{Parameters::validate(array_replace($legacy,['flow_gauge_limit_w'=>$limit]));throw new LogicException('Limite invalido deveria falhar');}catch(RuntimeException $e){}}
 check(Parameters::validate(array_replace($legacy,['flow_gauge_limit_w'=>5000]))['flow_gauge_limit_w']===5000,'Limite configuravel');
 echo "Gauge: limite fixo, compatibilidade e validacao: OK\n";
+
+$config=array_replace(Parameters::load(),['billing_closing_day'=>20,'daily_injection_target_kwh'=>20.0]);
+foreach([
+ ['2026-11-20T23:59:00-04:00','2026-10-21','2026-11-21','2026-09-21'],
+ ['2026-11-21T00:00:00-04:00','2026-11-21','2026-12-21','2026-10-21'],
+ ['2027-01-05T12:00:00-04:00','2026-12-21','2027-01-21','2026-11-21'],
+] as [$now,$start,$end,$previous]){
+ $period=M::billingPeriods($config,new DateTimeImmutable($now));
+ check($period['start']->format('Y-m-d')===$start&&$period['end']->format('Y-m-d')===$end&&$period['previous']->format('Y-m-d')===$previous,'Ciclo e fronteiras do fechamento');
+}
+foreach([['2028-03-01','2028-03-01','2028-04-01'],['2027-02-28','2027-02-01','2027-03-01']] as [$now,$start,$end]){
+ $p=M::billingPeriods(array_replace($config,['billing_closing_day'=>31]),new DateTimeImmutable($now.'T12:00:00-04:00'));
+ check($p['start']->format('Y-m-d')===$start&&$p['end']->format('Y-m-d')===$end,'Fechamento dia 31 e fevereiro');
+}
+$rows=[];
+foreach([['2026-10-21T00:00:00-04:00',0],['2026-10-22T12:00:00-04:00',50]] as [$time,$energy])$rows[]=['received_at'=>$time,'parsed'=>json_encode(['payload'=>['epa_c'=>0,'epb_c'=>0,'epa_g'=>$energy,'epb_g'=>0]])];
+$s=M::summary($rows,$config,new DateTimeImmutable('2026-10-22T12:00:00-04:00'));
+check($s['month']['injection']===50.0&&$s['injection_goal']['days']===2&&$s['injection_goal']['average']===25.0&&$s['injection_goal']['difference']===5.0,'Media e excedente da meta no ciclo');
+$s=M::summary([],$config,new DateTimeImmutable('2026-10-22T12:00:00-04:00'));
+check($s['injection_goal']['average']===null&&$s['injection_goal']['difference']===null,'Sem historico nao vira media zero');
+foreach([['billing_closing_day',0],['billing_closing_day',32],['daily_injection_target_kwh',0],['daily_injection_target_kwh',INF],['daily_injection_target_kwh','20']] as [$key,$value]){
+ try{Parameters::validate(array_replace($config,[$key=>$value]));throw new LogicException('Configuracao invalida aceita');}catch(RuntimeException $e){}
+}
+echo "Fatura: fechamento, virada de ano, fevereiro, media, meta e ausencia de historico: OK\n";

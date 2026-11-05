@@ -47,6 +47,8 @@
 <p class="flow-note">Potência líquida <span class="phase-list">A + B</span> · escala fixa · verde: injeção; laranja: consumo. <span id="gauge-limit-note" class="consumed"></span></p></article></div>
 <div class="overview-grid">
 <article><h2>Geração/Consumo</h2>
+<p id="billing-period" class="footer-note"></p>
+<div style="padding:10px;border:1px solid var(--border);border-radius:6px;margin:8px 0" role="status"><small>Meta de injeção no ciclo da fatura</small><div id="injection-goal" class="value">—</div><small id="injection-goal-note"></small></div>
 <p class="footer-note">Gerada: energia injetada na rede. Total = gerada − consumida; positivo indica excedente injetado.</p>
 <div class="energy-scroll" role="region" aria-label="Geração e consumo por período" tabindex="0"><table class="energy-summary"><thead><tr><th scope="col">Período</th><th scope="col" class="consumed">Consumida</th><th scope="col" class="injected">Gerada</th><th scope="col">Total</th></tr></thead><tbody id="energy-summary"></tbody></table></div><details><summary>Como os totais são calculados</summary><p class="footer-note">Energia em kWh: soma das variações dos contadores das fases <span class="phase-list">A + B</span>, dentro de cada período. Totais parciais consideram apenas o histórico disponível. Calendário: <span id="timezone">—</span>, semana iniciando na segunda-feira. Injeção é o excedente enviado à rede, não a geração solar total.</p>
 </details></article>
@@ -131,7 +133,14 @@ function updateLive(payload,recent){
 async function refreshEnergy(){try{
  const response=await fetch(API_PREFIX+'/api/summary');if(response.status===401){window.location.assign(API_PREFIX+'/login');return;}if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();
  const root=el('energy-summary');root.replaceChildren();
- for(const [key,label] of [['today','Hoje'],['week','Semana atual'],['month','Mês atual'],['previous_month','Mês anterior']]){
+ const dateOptions={timeZone:settings.timezone,day:'2-digit',month:'2-digit',year:'numeric'};
+ const cycle=data.energy.month,goal=data.energy.injection_goal;
+ el('billing-period').textContent='Ciclo: '+new Date(cycle.period_start).toLocaleDateString('pt-BR',dateOptions)+' a '+new Date(new Date(cycle.period_end).getTime()-1).toLocaleDateString('pt-BR',dateOptions)+' · fechamento configurado: dia '+settings.billing_closing_day;
+ const marker=el('injection-goal');
+ marker.textContent=goal.average===null?'Sem histórico suficiente':fmt(goal.average)+' kWh/dia · '+(goal.difference===0?'na meta':fmt(Math.abs(goal.difference))+' kWh/dia '+(goal.difference>0?'acima':'abaixo'));
+ marker.className='value '+(goal.average===null?'':goal.difference>=0?'injected':'consumed');
+ el('injection-goal-note').textContent='Meta: '+fmt(goal.target)+' kWh/dia. Média = injeção do ciclo ÷ '+goal.days+' dia(s), incluindo hoje em andamento.'+(goal.partial?' Histórico parcial: a média pode estar subestimada.':'');
+ for(const [key,label] of [['today','Hoje'],['week','Semana atual'],['month','Fatura atual'],['previous_month','Fatura anterior']]){
   const item=data.energy[key],row=document.createElement('tr'),name=document.createElement('th');name.scope='row';name.style.fontWeight='400';name.textContent=label;
   const note=document.createElement('small');note.className='coverage';
   if(item.from&&item.to){const options={timeZone:settings.timezone,day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'};note.textContent=(item.partial?'Parcial · ':'')+new Date(item.from).toLocaleString('pt-BR',options)+' a '+new Date(item.to).toLocaleString('pt-BR',options)+(item.resets?' · reinício de contador detectado':'');}else note.textContent='Sem histórico neste período';
@@ -143,7 +152,14 @@ async function refreshEnergy(){try{
   row.append(value);
   }root.append(row);
  }
- }catch(e){const root=el('energy-summary');root.replaceChildren();const row=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=4;cell.textContent='Não foi possível atualizar: '+e.message;row.append(cell);root.append(row);}}
+ }catch(e){const root=el('energy-summary');root.replaceChildren();
+ const dateOptions={timeZone:settings.timezone,day:'2-digit',month:'2-digit',year:'numeric'};
+ const cycle=data.energy.month,goal=data.energy.injection_goal;
+ el('billing-period').textContent='Ciclo: '+new Date(cycle.period_start).toLocaleDateString('pt-BR',dateOptions)+' a '+new Date(new Date(cycle.period_end).getTime()-1).toLocaleDateString('pt-BR',dateOptions)+' · fechamento configurado: dia '+settings.billing_closing_day;
+ const marker=el('injection-goal');
+ marker.textContent=goal.average===null?'Sem histórico suficiente':fmt(goal.average)+' kWh/dia · '+(goal.difference===0?'na meta':fmt(Math.abs(goal.difference))+' kWh/dia '+(goal.difference>0?'acima':'abaixo'));
+ marker.className='value '+(goal.average===null?'':goal.difference>=0?'injected':'consumed');
+ el('injection-goal-note').textContent='Meta: '+fmt(goal.target)+' kWh/dia. Média = injeção do ciclo ÷ '+goal.days+' dia(s), incluindo hoje em andamento.'+(goal.partial?' Histórico parcial: a média pode estar subestimada.':'');const row=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=4;cell.textContent='Não foi possível atualizar: '+e.message;row.append(cell);root.append(row);}}
 
 const ns='http://www.w3.org/2000/svg';
 function svgNode(tag,attrs,text){const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,v);if(text!==undefined)n.textContent=text;return n;}
