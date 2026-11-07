@@ -54,10 +54,10 @@
 </details></article>
 <article><h2>Comparativo diário — últimos 7 dias</h2>
 <p id="daily-range">Incluindo hoje, em andamento.</p>
-<p><span class="consumed">● Consumida</span> · <span class="injected">● Gerada / injetada</span> · energia em kWh</p>
+<p><span class="consumed">● Consumo diurno (06h–18h)</span> · <span style="color:#dc9448">● Consumo noturno (18h–06h)</span> · <span class="injected">● Gerada / injetada</span> · energia em kWh</p>
 <div id="daily-chart"></div>
 <details><summary>Ver valores por dia e cobertura do histórico</summary><div class="energy-scroll" role="region" aria-label="Comparativo diário de geração e consumo" tabindex="0"><table class="energy-summary"><thead><tr><th scope="col">Dia</th><th scope="col" class="consumed">Consumida</th><th scope="col" class="injected">Gerada</th><th scope="col">Total</th></tr></thead><tbody id="daily-summary"></tbody></table></div>
-<p id="daily-info" role="status"></p><small>Gerada corresponde à energia injetada na rede. Total = gerada − consumida. Dias sem histórico não são tratados como zero; dias parciais e reinícios de contador são sinalizados. Os valores usam as variações dos contadores entre as amostras disponíveis de cada dia.</small></details></article></div>
+<p id="daily-info" role="status"></p><small>Gerada corresponde à energia injetada na rede. Total = gerada − consumida. Dias sem histórico não são tratados como zero; dias parciais e reinícios de contador são sinalizados. Os valores usam as variações dos contadores entre as amostras disponíveis de cada dia. A noite reúne 00h–06h e 18h–24h da data exibida, no fuso configurado. Intervalos entre amostras que cruzam 06h ou 18h são divididos proporcionalmente ao tempo; a divisão é estimada, especialmente em lacunas do histórico.</small></details></article></div>
 <article>
 <div class="section-head"><h2>Histórico de potência</h2><div><label for="period">Período: </label><select id="period"><option value="1">Última hora</option><option value="6">Últimas 6 horas</option><option value="24" selected>Últimas 24 horas</option><option value="168">Últimos 7 dias</option></select></div></div>
 <div class="chart-grid"><div><h2>Potência consumida e injetada</h2>
@@ -177,7 +177,7 @@ function chart(id,points,series,unit="W",label="Potência",maxGapMs=settings.sta
  for(const time of ticks){const options={timeZone:settings.timezone,day:'2-digit',month:'2-digit',...(dateOnly?{}:{hour:'2-digit',minute:'2-digit'})};svg.append(svgNode('text',{x:x(time),y:h-18,fill:'#b9c8da','font-size':12,'text-anchor':'middle'},new Date(time).toLocaleString('pt-BR',options)));}
  if(kind==='bars'){
   const groupWidth=(w-l-r)/points.length,barWidth=Math.min(32,groupWidth*.7/series.length);
-  points.forEach((point,i)=>series.forEach((line,index)=>{const value=point[line.key];if(!Number.isFinite(value))return;const bar=svgNode('rect',{x:x(times[i])+(index-series.length/2)*barWidth+2,y:Math.min(y(value),y(0)),width:barWidth-4,height:Math.abs(y(value)-y(0)),fill:line.color,rx:2});bar.append(svgNode('title',{},new Date(point.time).toLocaleDateString('pt-BR',{timeZone:settings.timezone})+' · '+line.name+': '+fmt(value)+' '+unit));svg.append(bar);}));
+  points.forEach((point,i)=>series.forEach((line,index)=>{const value=point[line.key];if(!Number.isFinite(value))return;let base=0;for(const segment of line.segments??[line]){const amount=point[segment.key];if(!Number.isFinite(amount))continue;const top=base+amount;const tip=new Date(point.time).toLocaleDateString('pt-BR',{timeZone:settings.timezone})+' · '+segment.name+': '+fmt(amount)+' '+unit;const bar=svgNode('rect',{x:x(times[i])+(index-series.length/2)*barWidth+2,y:Math.min(y(top),y(base)),width:barWidth-4,height:Math.abs(y(top)-y(base)),fill:segment.color,rx:line.segments?0:2,tabindex:0,'aria-label':tip});bar.append(svgNode('title',{},tip));svg.append(bar);base=top;}}));
  }else{
  for(const s of series){let d='',previous=null;points.forEach((p,i)=>{if(!Number.isFinite(p[s.key])){previous=null;return;}d+=(previous===null||times[i]-previous>maxGapMs?'M':'L')+x(times[i])+','+y(p[s.key])+' ';previous=times[i];});svg.append(svgNode('path',{d,fill:'none',stroke:s.color,'stroke-width':2}));
  }
@@ -197,7 +197,7 @@ async function refreshDaily(){if(dailyBusy)return;dailyBusy=true;try{
  if(day.from&&day.to)coverage+=' · '+new Date(day.from).toLocaleTimeString('pt-BR',{timeZone:data.timezone,hour:'2-digit',minute:'2-digit'})+'–'+new Date(day.to).toLocaleTimeString('pt-BR',{timeZone:data.timezone,hour:'2-digit',minute:'2-digit'});
  note.textContent=coverage;name.append(note);row.append(name);
  for(const key of ['consumption','injection','balance']){const cell=document.createElement('td'),value=day[key];cell.textContent=value===null?'—':value.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2,signDisplay:key==='balance'?'exceptZero':'auto'})+' kWh';cell.className=key==='balance'?(value>0?'injected':value<0?'consumed':''):key==='consumption'?'consumed':'injected';row.append(cell);}root.append(row);}
- chart('daily-chart',data.days,[{key:'consumption',color:'#ffbc65',name:'Consumida'},{key:'injection',color:'#60dfbe',name:'Gerada / injetada'}],'kWh','Comparativo diário',36*3600000,true,'bars');
+ chart('daily-chart',data.days,[{key:'consumption',color:'#ffbc65',name:'Consumida',segments:[{key:'consumption_day',color:'#ffbc65',name:'Consumo diurno (06h–18h)'},{key:'consumption_night',color:'#dc9448',name:'Consumo noturno (18h–06h)'}]},{key:'injection',color:'#60dfbe',name:'Gerada / injetada'}],'kWh','Comparativo diário',36*3600000,true,'bars');
  el('daily-info').textContent='Atualizado em '+new Date().toLocaleTimeString('pt-BR',{timeZone:data.timezone})+'.';
  }catch(e){el('daily-info').textContent='Não foi possível atualizar o comparativo: '+e.message;}finally{dailyBusy=false;}}
 const technicalMetrics=[

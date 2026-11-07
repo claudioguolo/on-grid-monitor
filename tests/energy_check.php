@@ -103,3 +103,13 @@ foreach([['billing_closing_day',0],['billing_closing_day',32],['daily_injection_
  try{Parameters::validate(array_replace($config,[$key=>$value]));throw new LogicException('Configuracao invalida aceita');}catch(RuntimeException $e){}
 }
 echo "Fatura: fechamento, virada de ano, fevereiro, media, meta e ausencia de historico: OK\n";
+
+$nightRows=[];
+foreach([['00:00',0],['05:00',5],['07:00',9],['17:00',19],['19:00',25],['23:00',29]] as [$time,$kwh])$nightRows[]=['received_at'=>'2026-11-06T'.$time.':00-04:00','parsed'=>json_encode(['payload'=>['epa_c'=>$kwh,'epb_c'=>0,'epa_g'=>0,'epb_g'=>0]])];
+$d=M::daily($nightRows,Parameters::load(),new DateTimeImmutable('2026-11-06T23:00:00-04:00'))[6];
+check($d['consumption']===29.0&&$d['consumption_day']===15.0&&$d['consumption_night']===14.0,'Consumo dia/noite com interpolacao nas fronteiras e fuso');
+check($d['consumption_day']+$d['consumption_night']===$d['consumption'],'Divisao preserva consumo total');
+$empty=M::daily([],Parameters::load(),new DateTimeImmutable('2026-11-06T23:00:00-04:00'))[6];check($empty['consumption_day']===null&&$empty['consumption_night']===null,'Ausencia de dados nao vira consumo zero');
+$reset=$nightRows;$reset[2]['parsed']=json_encode(['payload'=>['epa_c'=>0,'epb_c'=>0,'epa_g'=>0,'epb_g'=>0]]);
+$d=M::daily($reset,Parameters::load(),new DateTimeImmutable('2026-11-06T23:00:00-04:00'))[6];check($d['resets']===1&&abs($d['consumption_day']+$d['consumption_night']-$d['consumption'])<0.000001,'Reinicio de contador preserva decomposicao');
+echo "Consumo diurno/noturno: fronteiras, fuso, total, reinicio e dados ausentes: OK\n";
