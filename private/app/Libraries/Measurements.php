@@ -107,7 +107,7 @@ final class Measurements
             $start=$today->modify('-'.$offset.' days');$key=$start->format('Y-m-d');
             $periods[$key]=[$start,$offset===0?$now:$start->modify('+1 day')];
             $states[$key]=['date'=>$key,'time'=>$start->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d\TH:i:sP'),
-                'consumption'=>0.0,'injection'=>0.0,'balance'=>null,'samples'=>0,'resets'=>0,'from'=>null,'to'=>null,'in_progress'=>$offset===0,'last'=>null];
+                'consumption'=>0.0,'consumption_day'=>0.0,'consumption_night'=>0.0,'injection'=>0.0,'balance'=>null,'samples'=>0,'resets'=>0,'from'=>null,'to'=>null,'in_progress'=>$offset===0,'last'=>null];
         }
         foreach($rows as $row){
             $payload=json_decode($row['parsed'],true)['payload']??null;if(!is_array($payload))continue;
@@ -120,7 +120,16 @@ final class Measurements
                 if($state['last']!==null){
                     $delta=array_map(fn($after,$before)=>$after-$before,$values,$state['last']);
                     if(min($delta)<-0.000001)$state['resets']++;
-                    else{$state['consumption']+=array_sum(array_slice($delta,0,count($phases)));$state['injection']+=array_sum(array_slice($delta,count($phases)));}
+                    else{
+                        $consumed=array_sum(array_slice($delta,0,count($phases)));
+                        $state['consumption']+=$consumed;$state['injection']+=array_sum(array_slice($delta,count($phases)));
+                        $before=new \DateTimeImmutable($state['to']);
+                        $seconds=$stamp->getTimestamp()-$before->getTimestamp();
+                        $daySeconds=max(0,min($stamp->getTimestamp(),$start->setTime(18,0)->getTimestamp())-max($before->getTimestamp(),$start->setTime(6,0)->getTimestamp()));
+                        // Counter increments crossing 06:00/18:00 are apportioned by elapsed time.
+                        $dayEnergy=$seconds>0?$consumed*$daySeconds/$seconds:((int)$stamp->setTimezone($zone)->format('H')>=6&&(int)$stamp->setTimezone($zone)->format('H')<18?$consumed:0);
+                        $state['consumption_day']+=$dayEnergy;$state['consumption_night']+=$consumed-$dayEnergy;
+                    }
                 }
                 $state['from']??=$row['received_at'];$state['to']=$row['received_at'];$state['samples']++;$state['last']=$values;unset($state);
             }
@@ -128,6 +137,8 @@ final class Measurements
         foreach($states as $key=>&$state){
             unset($state['last']);$enough=$state['samples']>=2;
             $state['consumption']=$enough?round($state['consumption'],6):null;
+            $state['consumption_day']=$enough?round($state['consumption_day'],6):null;
+            $state['consumption_night']=$enough?round($state['consumption']-$state['consumption_day'],6):null;
             $state['injection']=$enough?round($state['injection'],6):null;
             $state['balance']=$enough?round($state['injection']-$state['consumption'],6):null;
             $state['partial']=!$enough||$state['resets']>0||
